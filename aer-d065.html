@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AER D065 Application Assistant — CCUS Compass</title>
+<script>
+/* Apply theme before CSS renders to avoid flash */
+(function(){var t=localStorage.getItem('ccus-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<script src="ccus-nav.js" defer></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242836;--border:#2e3347;--text:#e4e7f0;--text2:#9ca3b8;--accent:#00b4d8;--accent2:#0077b6;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--required:#ef4444;--recommended:#f59e0b;--font:'Segoe UI',system-ui,-apple-system,sans-serif}
+/* Light geological theme */
+html[data-theme="light"]{--bg:#f0ede4;--surface:#faf8f2;--surface2:#f5f1e8;--border:#c8b89a;--text:#1a1810;--text2:#5a4a38;--accent:#005fa4;--accent2:#003d80;--success:#1a7a50;--warn:#b07010;--danger:#b01818;--required:#b01818;--recommended:#b07010}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;min-height:100vh}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:1.5rem;font-weight:700;letter-spacing:-0.5px}
+.header h1 span{color:var(--accent)}
+.header .subtitle{color:var(--text2);font-size:0.85rem;margin-top:2px}
+.header .badge{background:var(--accent2);color:white;padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600}
+
+/* Tabs */
+.tabs{display:flex;background:var(--surface);border-bottom:2px solid var(--border);padding:0 40px;overflow-x:auto}
+.tab{padding:14px 24px;cursor:pointer;color:var(--text2);font-weight:500;font-size:0.9rem;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all 0.2s}
+.tab:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Content */
+.content{max-width:1200px;margin:0 auto;padding:30px 40px}
+.panel{display:none}.panel.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s}
+.card-header:hover{background:rgba(255,255,255,0.02)}
+.card-header h3{font-size:1rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.card-header .arrow{transition:transform 0.3s;color:var(--text2)}
+.card.open .card-header .arrow{transform:rotate(90deg)}
+.card-body{padding:0 20px 20px;display:none}
+.card.open .card-body{display:block}
+
+/* Section numbering */
+.sec-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:var(--accent2);color:white;font-size:0.8rem;font-weight:700;flex-shrink:0}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.tag.required{background:rgba(239,68,68,0.15);color:var(--required)}
+.tag.recommended{background:rgba(245,158,11,0.15);color:var(--recommended)}
+.tag.optional{background:rgba(107,114,128,0.15);color:#9ca3af}
+
+/* Data items */
+.data-item{padding:10px 14px;border-left:3px solid var(--border);margin:8px 0;background:rgba(255,255,255,0.01);border-radius:0 6px 6px 0}
+.data-item.critical{border-left-color:var(--required)}
+.data-item.important{border-left-color:var(--warn)}
+.data-item h4{font-size:0.88rem;font-weight:600;margin-bottom:4px}
+.data-item p{font-size:0.82rem;color:var(--text2);line-height:1.5}
+.data-item .ref{font-size:0.75rem;color:var(--accent);margin-top:4px;font-style:italic}
+
+/* Checklist */
+.progress-bar-container{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.progress-header h3{font-size:1.1rem}
+.progress-header .pct{font-size:1.4rem;font-weight:700;color:var(--accent)}
+.progress-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px;transition:width 0.4s ease}
+.progress-stats{display:flex;gap:20px;margin-top:12px;font-size:0.82rem;color:var(--text2)}
+
+.checklist-group{margin-bottom:20px}
+.checklist-group-title{font-size:0.95rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:6px;transition:background 0.15s;cursor:pointer}
+.check-item:hover{background:rgba(255,255,255,0.03)}
+.check-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);margin-top:2px;flex-shrink:0;cursor:pointer}
+.check-item.checked label{color:var(--text2);text-decoration:line-through}
+.check-item label{font-size:0.88rem;cursor:pointer;flex:1}
+.check-item .check-tag{margin-left:auto;flex-shrink:0}
+
+/* Guide steps */
+.step{display:flex;gap:20px;margin-bottom:24px;position:relative}
+.step::before{content:'';position:absolute;left:19px;top:40px;bottom:-24px;width:2px;background:var(--border)}
+.step:last-child::before{display:none}
+.step-num{width:40px;height:40px;border-radius:50%;background:var(--accent2);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;position:relative;z-index:1}
+.step-content{flex:1;padding-top:6px}
+.step-content h3{font-size:1rem;font-weight:600;margin-bottom:6px}
+.step-content p{font-size:0.88rem;color:var(--text2);margin-bottom:8px}
+.step-content .tip{background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:10px 14px;font-size:0.82rem;color:var(--accent);margin-top:8px}
+.step-content .warn-tip{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:10px 14px;font-size:0.82rem;color:var(--warn);margin-top:8px}
+.step-content .timeline{font-size:0.8rem;color:var(--warn);font-weight:600;margin-bottom:4px}
+
+/* Downloads */
+.dl-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:16px;transition:border-color 0.2s}
+.dl-card:hover{border-color:var(--accent)}
+.dl-icon{width:52px;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.dl-icon.xlsx{background:rgba(16,185,129,0.15);color:var(--success)}
+.dl-icon.docx{background:rgba(0,119,182,0.15);color:var(--accent2)}
+.dl-info h3{font-size:1rem;font-weight:600;margin-bottom:4px}
+.dl-info p{font-size:0.82rem;color:var(--text2)}
+.dl-status{margin-left:auto;padding:6px 14px;border-radius:6px;font-size:0.8rem;font-weight:600}
+.dl-status.ready{background:rgba(16,185,129,0.15);color:var(--success)}
+
+/* Utility */
+.section-intro{color:var(--text2);font-size:0.92rem;margin-bottom:24px;line-height:1.7}
+.mt-16{margin-top:16px}.mb-8{margin-bottom:8px}
+h2{font-size:1.3rem;font-weight:700;margin-bottom:16px}
+.divider{height:1px;background:var(--border);margin:24px 0}
+.sub-list{margin:8px 0 8px 20px;font-size:0.84rem;color:var(--text2)}
+.sub-list li{margin:4px 0}
+.highlight{color:var(--accent);font-weight:600}
+
+/* Template download bar */
+.template-downloads{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:stretch}
+.dl-btn{display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:10px;cursor:pointer;border:none;font-family:var(--font);transition:all 0.2s;text-align:left;flex:1;min-width:220px}
+.dl-btn-word{background:rgba(0,119,182,0.12);border:1px solid rgba(0,119,182,0.35);color:var(--text)}
+.dl-btn-word:hover{background:rgba(0,119,182,0.22);border-color:rgba(0,119,182,0.6)}
+.dl-btn-pdf{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--text)}
+.dl-btn-pdf:hover{background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.5)}
+.dl-btn-icon{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.dl-btn-word .dl-btn-icon{background:rgba(0,119,182,0.2)}
+.dl-btn-pdf .dl-btn-icon{background:rgba(239,68,68,0.15)}
+.dl-btn-text strong{display:block;font-size:0.92rem;font-weight:700;margin-bottom:2px}
+.dl-btn-text span{font-size:0.76rem;color:var(--text2)}
+.dl-btn-word .dl-btn-text strong{color:var(--accent)}
+.dl-btn-pdf .dl-btn-text strong{color:var(--danger)}
+.dl-generating{opacity:0.6;pointer-events:none}
+
+/* Checklist action bar */
+.checklist-actions{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.2s}
+.btn-save{background:rgba(16,185,129,0.15);color:var(--success);border:1px solid rgba(16,185,129,0.3)}
+.btn-save:hover{background:rgba(16,185,129,0.25)}
+.btn-pdf{background:rgba(0,180,216,0.12);color:var(--accent);border:1px solid rgba(0,180,216,0.3)}
+.btn-pdf:hover{background:rgba(0,180,216,0.22)}
+.btn-clear{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}
+.btn-clear:hover{background:rgba(239,68,68,0.2)}
+.save-status{font-size:0.78rem;color:var(--text2);margin-left:auto;padding:4px 0}
+
+/* Print / PDF */
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff!important;color:#111!important}
+  .header,.tabs,.checklist-actions{display:none!important}
+  .content{padding:0!important;max-width:100%!important}
+  .panel{display:none!important}
+  #checklist{display:block!important;padding:10px 0!important}
+  #checklist h2{color:#111;font-size:1.1rem;margin-bottom:8px}
+  #checklist .section-intro{color:#555;font-size:0.82rem;margin-bottom:12px}
+  .progress-bar-container{background:#f4f6f8!important;border:1px solid #ccc!important;border-radius:6px;padding:14px;margin-bottom:16px;page-break-inside:avoid}
+  .progress-header h3{color:#111!important}.pct{color:#0077b6!important}
+  .progress-track{background:#ddd!important}.progress-fill{border-radius:4px}
+  .progress-stats{color:#555!important}
+  .checklist-group{page-break-inside:avoid;margin-bottom:14px}
+  .checklist-group-title{color:#111!important;border-bottom:1px solid #ccc!important;padding:8px 0;font-size:0.85rem}
+  .sec-num{background:#0077b6!important;color:#fff!important}
+  .check-item{padding:5px 8px!important;background:#fff!important;border-radius:4px}
+  .check-item:hover{background:#fff!important}
+  .check-item label{color:#111!important;font-size:0.8rem!important}
+  .check-item.checked label{color:#888!important;text-decoration:line-through}
+  .check-item input[type="checkbox"]{width:13px!important;height:13px!important;accent-color:#0077b6}
+  .tag.required{background:#ffe4e4!important;color:#c00!important;border:1px solid #f9a!important}
+  .tag.recommended{background:#fff3cd!important;color:#856404!important;border:1px solid #ffc!important}
+  .tag.optional{background:#e9ecef!important;color:#555!important;border:1px solid #ccc!important}
+}
+
+/* Approval Intelligence */
+.clause{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.clause-header{padding:14px 18px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:background 0.2s}
+.clause-header:hover{background:rgba(255,255,255,0.02)}
+.clause-num{background:var(--warn);color:#000;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.clause-title{font-size:0.92rem;font-weight:600;flex:1}
+.clause-body{padding:0 18px 16px;display:none}
+.clause.open .clause-body{display:block}
+.clause.open .clause-header .arrow{transform:rotate(90deg)}
+.annotation{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:0.84rem}
+.annotation-label{color:var(--accent);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.annotation p{color:var(--text2);line-height:1.6}
+.gate{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2);border-radius:8px;margin:8px 0}
+.gate-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0}
+.gate-icon.blocked{background:rgba(239,68,68,0.2);color:var(--danger)}
+.contact-card{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin:6px 0;flex-wrap:wrap}
+.contact-card .cc-label{font-size:0.82rem;font-weight:600;min-width:160px}
+.contact-card .cc-email{font-size:0.82rem;color:var(--accent)}
+.contact-card .cc-when{font-size:0.78rem;color:var(--text2);flex:1;text-align:right}
+.timeline-bar{display:flex;gap:0;margin:20px 0;flex-wrap:wrap}
+.tl-item{flex:1;min-width:120px;padding:10px 12px;border-left:3px solid var(--accent2);background:var(--surface);margin:4px}
+.tl-item .tl-when{font-size:0.72rem;color:var(--warn);font-weight:600;text-transform:uppercase}
+.tl-item .tl-what{font-size:0.82rem;margin-top:4px;color:var(--text2)}
+.approval-header-box{background:linear-gradient(135deg,rgba(0,119,182,0.1),rgba(0,180,216,0.05));border:1px solid rgba(0,180,216,0.2);border-radius:10px;padding:20px;margin-bottom:24px}
+.approval-header-box h3{font-size:1.1rem;margin-bottom:8px}
+.approval-header-box .meta{display:flex;gap:20px;flex-wrap:wrap;font-size:0.82rem;color:var(--text2)}
+.approval-header-box .meta span{display:flex;align-items:center;gap:6px}
+.gate-text{font-size:0.85rem;color:var(--text2)}
+.gate-text strong{color:var(--text)}
+
+/* Responsive */
+@media(max-width:768px){
+  .header,.content,.tabs{padding-left:16px;padding-right:16px}
+  .step{gap:12px}
+}
+
+/* Footer */
+.site-footer{background:linear-gradient(135deg,#0a0d14 0%,#141824 100%);border-top:1px solid var(--border);padding:28px 40px;margin-top:40px}
+.site-footer .footer-tagline{color:var(--text2);font-size:0.85rem;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.site-footer .footer-tagline strong{color:var(--accent)}
+.site-footer .footer-disclaimer{font-size:0.75rem;color:#606882;line-height:1.7}
+.site-footer .footer-disclaimer strong{color:#8892aa;font-weight:600}
+.site-footer .footer-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:0.72rem;color:#4a5268;flex-wrap:wrap;gap:8px}
+@media(max-width:768px){.site-footer{padding:20px 16px}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1><span>AER Directive 065</span> — Application Assistant</h1>
+    <div class="subtitle">CO₂ Storage Scheme Builder · Alberta, Canada · CCUS Compass / SubsurfaceAI</div>
+  </div>
+  <div class="badge">CO₂ Storage — Part 2</div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="templates">Application Template</div>
+  <div class="tab" data-tab="checklist">Compliance Checklist</div>
+  <div class="tab" data-tab="guide">Submission Guide</div>
+  <div class="tab" data-tab="downloads">Calculators & Downloads</div>
+  <div class="tab" data-tab="approval">Approval Intelligence</div>
+</div>
+
+<!-- ==================== TAB 1: APPLICATION TEMPLATE ==================== -->
+<div class="content">
+<div class="panel active" id="templates">
+  <h2>AER Directive 065 — CO₂ Storage Scheme Application Template</h2>
+  <p class="section-intro">
+    Complete application structure for a Class III/IV CO₂ storage scheme under AER Directive 065 (Requirements for Acid Gas Injection and CO₂ Storage Schemes). Each section maps to D065 requirements with guidance on what the AER expects. Expand each section for detailed data requirements and pro tips.
+  </p>
+
+  <!-- Download Bar -->
+  <div class="template-downloads">
+    <button class="dl-btn dl-btn-word" id="btnWord" onclick="generateWordTemplate()">
+      <div class="dl-btn-icon">W</div>
+      <div class="dl-btn-text">
+        <strong>Download Word Template (.doc)</strong>
+        <span>Editable blank template with all 12 sections, boilerplate language &amp; AER placeholders. Incomplete sections flagged from your checklist.</span>
+      </div>
+    </button>
+    <button class="dl-btn dl-btn-pdf" id="btnPDF" onclick="generatePDFSample()">
+      <div class="dl-btn-icon">P</div>
+      <div class="dl-btn-text">
+        <strong>Download PDF Sample (.pdf)</strong>
+        <span>Completed example showing AER-expected content, structure and language — use as a writing reference before filling the Word template.</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="card" id="s1">
+    <div class="card-header" onclick="toggleCard('s1')">
+      <h3><span class="sec-num">1</span> General Information & Scheme Description</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Applicant Information</h4>
+        <p>Legal name, AER licensee code (BA code), contact person, mailing address, phone, email. Must match AER's licensee records exactly.</p>
+        <div class="ref">D065 Section 2.1 — Applicant identification must match OneStop submission credentials</div>
+      </div>
+      <div class="data-item critical">
+        <h4>Scheme Description & Purpose</h4>
+        <p>Type of scheme (CO₂ storage), source of CO₂ (capture facility, pipeline), purpose (permanent geological storage for emissions reduction credits). State whether this is a new scheme or amendment to existing.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Location</h4>
+        <p>Legal Subdivision (LSD), Section, Township, Range, Meridian. NAD83 coordinates for all well locations. Surface and bottom-hole locations if deviated wells.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Target Formation(s)</h4>
+        <p>Name of injection zone(s), depth interval (mKB/mTVD), formation top/base. If stacked storage, list all target intervals.</p>
+      </div>
+      <div class="data-item">
+        <h4>CO₂ Stream Composition</h4>
+        <p>Full compositional analysis of the injected CO₂ stream. Include impurities (H₂S, N₂, CH₄, H₂O, SOₓ, NOₓ). State capture technology and expected variability.</p>
+        <div class="ref">AER requires compositional data to assess corrosion, injectivity, and geochemical reactivity</div>
+      </div>
+      <div class="data-item">
+        <h4>Project Timeline</h4>
+        <p>Proposed start date, injection duration (years), total injection volume, post-injection monitoring period, anticipated closure date. Include ramp-up schedule if phased.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Carbon Sequestration Tenure Agreement (CSTA)</h4>
+        <p>Evidence of current CSTA from the Alberta Crown. Must validate pore space rights for all proposed well locations. Tenure must be maintained continuously — AER verifies at time of application.</p>
+        <div class="ref">Approval No. 13513, Clause 11 — CSTA maintenance is a prerequisite, not an afterthought</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="card" id="s2">
+    <div class="card-header" onclick="toggleCard('s2')">
+      <h3><span class="sec-num">2</span> Geological Assessment</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Regional Geological Setting</h4>
+        <p>Sedimentary basin context (WCSB), structural province, depositional environment. Include regional cross-sections and stratigraphic column from Precambrian basement to surface.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Stratigraphy — Injection Zone</h4>
+        <p>Formation name, age, lithology, depositional environment, thickness (gross/net), lateral extent. Provide well-log correlation panels across the AoR. Include type logs with key formation tops.</p>
+        <div class="ref">Must demonstrate sufficient porosity, permeability, and thickness for planned injection volumes</div>
+      </div>
+      <div class="data-item critical">
+        <h4>Stratigraphy — Primary Caprock/Seal</h4>
+        <p>Formation name, lithology, thickness, lateral continuity, capillary entry pressure, breakthrough pressure. Demonstrate seal integrity via mercury injection capillary pressure (MICP) data or analogues.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Secondary Seals & Containment</h4>
+        <p>Identify additional confining units above primary seal. Multi-barrier containment concept. Discuss aquitards and their hydraulic properties.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Structural Geology</h4>
+        <p>Faults (location, throw, orientation, sealing capacity), fracture systems, structural closures. Include structure maps (top of injection zone) from 3D seismic if available. Assess fault reactivation potential (Mohr-Coulomb, slip tendency).</p>
+        <div class="ref">Fault seal analysis is critical — AER will scrutinize any faults within the AoR</div>
+      </div>
+      <div class="data-item important">
+        <h4>Hydrogeological Assessment</h4>
+        <p>Baseline groundwater conditions, shallow aquifer identification (base of groundwater protection), regional flow regime, TDS profiles. Demonstrate isolation between injection zone and BGWP.</p>
+      </div>
+      <div class="data-item">
+        <h4>Geomechanical Assessment</h4>
+        <p>In-situ stress state (σH, σh, σv), pore pressure gradient, fracture gradient. Maximum allowable injection pressure (typically 90% of fracture pressure). Include Mohr circle analysis and stress path during injection.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="card" id="s3">
+    <div class="card-header" onclick="toggleCard('s3')">
+      <h3><span class="sec-num">3</span> Reservoir Characterization & Modelling</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Reservoir Properties</h4>
+        <p>Porosity (core, log-derived), permeability (core, DST, well test), net pay, net-to-gross ratio. Include histograms and spatial distributions. Report geometric vs. arithmetic mean permeability and discuss anisotropy (kv/kh).</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Formation Fluid Properties</h4>
+        <p>Initial pressure and temperature, pressure gradient, formation water salinity/TDS, water chemistry (major ions). CO₂ properties at reservoir conditions (density, viscosity, solubility in brine). PVT data or EOS model parameters.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Multiphase Flow Properties</h4>
+        <p>Relative permeability curves (drainage and imbibition for CO₂-brine system), capillary pressure curves, residual CO₂ saturation. Source: core floods on native rock or justified analogues.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Numerical Simulation Model</h4>
+        <p>Simulator used (CMG-GEM, ECLIPSE-CO2STORE, TOUGH2, etc.), grid dimensions and resolution, boundary conditions, well model. Describe upscaling from geological model to simulation grid. Include sensitivity analysis on key parameters.</p>
+        <div class="ref">AER expects simulation results for plume migration, pressure response, and trapping mechanisms over injection + PISC period</div>
+      </div>
+      <div class="data-item important">
+        <h4>Storage Capacity Estimate</h4>
+        <p>Static volumetric estimate (Meff = A × h × φ × ρCO₂ × E), dynamic simulation-based estimate, storage efficiency factors used. Report P10/P50/P90 range. Compare analytical and numerical results.</p>
+      </div>
+      <div class="data-item important">
+        <h4>CO₂ Trapping Mechanisms</h4>
+        <p>Quantify contribution of: structural/stratigraphic trapping, residual (capillary) trapping, solubility trapping, mineral trapping. Time evolution of trapping mechanisms over injection and post-injection periods.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Thermal Fracturing Assessment</h4>
+        <p>Preliminary thermal-mechanical analysis of cold CO₂ injection into warm formation. Assess thermal stress near wellbore, potential for thermally-induced fracturing, and implications for caprock integrity. AER now requires a revised geomechanical modelling report within 2 years of injection start.</p>
+        <div class="ref">Approval No. 13513, Clause 19 — AER increasingly focused on thermal fracturing assurance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="card" id="s4">
+    <div class="card-header" onclick="toggleCard('s4')">
+      <h3><span class="sec-num">4</span> Area of Review (AoR) & Well Integrity</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>AoR Delineation</h4>
+        <p>Methodology used (pressure-based, plume-based, or combined). Define the AoR as the greater of: (1) modelled CO₂ plume extent + buffer, or (2) area where pressure increase exceeds threshold. Include maps at end of injection and end of PISC.</p>
+        <div class="ref">Use the companion Excel AoR Calculator for analytical estimates. Numerical simulation should refine these.</div>
+      </div>
+      <div class="data-item critical">
+        <h4>Existing Well Inventory</h4>
+        <p>Complete inventory of ALL wells penetrating the injection zone and caprock within the AoR. For each well: UWI, status (active/suspended/abandoned), total depth, completion interval, casing/cement details, current licensee.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Well Integrity Assessment</h4>
+        <p>For each well in the AoR: review original completion reports, cement bond logs (CBL/VDL), casing inspection logs, pressure test records. Classify integrity risk (high/medium/low). Identify wells penetrating the seal that lack adequate cement across the caprock.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Corrective Action Plan</h4>
+        <p>For each well identified as high or medium risk: proposed remediation (squeeze cementing, casing repair, re-abandonment). Timeline and responsibility. Demonstrate that all wells will have adequate barrier integrity before injection commences.</p>
+      </div>
+      <div class="data-item">
+        <h4>Legacy Well Assessment</h4>
+        <p>For pre-1950s wells where records may be incomplete: describe approach to verifying abandonment adequacy. Consider ERCB Bulletin 2012-02 and current AER requirements for CO₂-resistant cement.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Hydraulic Fracturing Risk from Offset Operations</h4>
+        <p>Assess risk of loss of hydraulic isolation in the target zone due to hydraulic fracturing treatments in overlying/underlying formations within the AOI. If unconventional development (Duvernay, Montney, etc.) is active nearby, evaluate whether frac jobs have compromised the seal or created communication pathways.</p>
+        <div class="ref">Approval No. 13513, Clause 9 — AER requires this assessment to be updated post-approval</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="card" id="s5">
+    <div class="card-header" onclick="toggleCard('s5')">
+      <h3><span class="sec-num">5</span> Injection Well Design & Operations</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Well Construction</h4>
+        <p>Casing program (surface, intermediate, production casing — grades, weights, connections), cement program (volumes, CO₂-resistant cement type, planned TOC), wellbore schematic. All materials must be CO₂-compatible (13Cr or higher for tubing, CO₂-resistant elastomers).</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Injection Parameters</h4>
+        <p>Maximum injection rate (t/d), maximum surface injection pressure, maximum bottomhole injection pressure (must not exceed 90% fracture pressure), injection temperature range. Include injectivity analysis from well tests or simulation.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Wellhead & Surface Facilities</h4>
+        <p>Wellhead pressure/temperature ratings, metering equipment (flow, pressure, temperature), safety shutdown systems, corrosion monitoring. SCADA integration for real-time data transmission to AER.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Annular Monitoring</h4>
+        <p>Annular pressure monitoring program, leak detection thresholds, response procedures for sustained casing pressure (SCP). AER expects continuous annular pressure monitoring on all injection wells.</p>
+      </div>
+      <div class="data-item">
+        <h4>Operational Procedures</h4>
+        <p>Start-up, normal operations, shut-in, and emergency procedures. CO₂ phase management (avoid two-phase flow in wellbore). Thermal stress analysis for cold CO₂ injection into warm formations.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="card" id="s6">
+    <div class="card-header" onclick="toggleCard('s6')">
+      <h3><span class="sec-num">6</span> Risk Assessment</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>FEP (Features, Events, Processes) Analysis</h4>
+        <p>Systematic identification of all relevant FEPs using an established framework (e.g., Quintessa CO₂ FEP database). Categorize by: assessment basis (geological, operational, external), likelihood, consequence. Document screening rationale for excluded FEPs.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Risk Register</h4>
+        <p>Comprehensive risk register with: risk ID, description, category (containment, conformance, operational, HSE), likelihood (1-5), consequence (1-5), risk ranking, mitigation measures, residual risk. Use bow-tie diagrams for top risks.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Leakage Pathway Assessment</h4>
+        <p>Evaluate all potential leakage pathways: (1) through caprock (diffusion, fractures), (2) via wells (existing and injection), (3) along faults, (4) lateral migration beyond AoR. Quantify leakage rates for credible scenarios.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Induced Seismicity Assessment</h4>
+        <p>Baseline seismicity, proximity to known faults, assessment of injection-induced seismicity potential. Include traffic light protocol (TLP) with magnitude thresholds and operational responses. Reference AER Subsurface Order No. 2.</p>
+        <div class="ref">AER is increasingly focused on induced seismicity — a robust TLP is essential</div>
+      </div>
+      <div class="data-item">
+        <h4>Quantitative Risk Assessment (if applicable)</h4>
+        <p>Monte Carlo analysis for key uncertainties, probabilistic containment assessment, sensitivity analysis. Required for large-volume schemes (>1 Mt/yr).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 7 -->
+  <div class="card" id="s7">
+    <div class="card-header" onclick="toggleCard('s7')">
+      <h3><span class="sec-num">7</span> Measurement, Monitoring & Verification (MMV)</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>MMV Plan Overview</h4>
+        <p>Describe the overall monitoring philosophy: risk-based, phased, adaptive. MMV must address containment assurance (CO₂ stays in target zone), conformance verification (plume matches predictions), and quantification (volumes stored).</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Baseline Monitoring</h4>
+        <p>Pre-injection baseline surveys: groundwater sampling, soil gas surveys, seismic (if applicable), pressure monitoring. Minimum 12 months of baseline data before injection. Define baseline statistical ranges for anomaly detection.</p>
+        <div class="ref">AER expects robust baselines — inadequate baseline data is a common deficiency in applications</div>
+      </div>
+      <div class="data-item critical">
+        <h4>Operational Monitoring</h4>
+        <p>During injection: continuous wellhead P/T/Q, periodic downhole gauges, formation pressure monitoring (observation wells), time-lapse seismic (frequency depends on volume), groundwater monitoring, soil gas monitoring. Reporting frequency to AER.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Above-Zone Monitoring</h4>
+        <p>Monitoring of formations above the primary seal: pressure, fluid composition. Purpose: early detection of any CO₂ migration through the seal. May use dedicated monitoring wells or intermediate-zone completions.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Post-Injection Monitoring</h4>
+        <p>Continued monitoring after cessation of injection. Minimum duration and scope as required by AER (typically aligned with pressure stabilization and plume stability). Define criteria for monitoring frequency reduction.</p>
+      </div>
+      <div class="data-item">
+        <h4>Data Management & Reporting</h4>
+        <p>Data acquisition, storage, QA/QC, and reporting protocols. Annual MMV reports to AER. Digital data submission requirements (Petrinex, DDS).</p>
+      </div>
+      <div class="data-item important">
+        <h4>Hall Plot Analysis Program</h4>
+        <p>Plan for Hall plots of constant average reservoir pressure to detect unexplained anomalous injection rates and pressure data that could indicate fracturing. This is a required component of annual reporting.</p>
+        <div class="ref">Approval No. 13513, Clause 21(g) — Hall plots required in every annual report</div>
+      </div>
+      <div class="data-item">
+        <h4>Vegetation Health & Surface Leak Monitoring</h4>
+        <p>Technologies for monitoring changes in vegetation health that could indicate surface CO₂ leaks. Include remote sensing, InSAR for surface deformation, and near-surface soil gas monitoring network design.</p>
+        <div class="ref">Approval No. 13513, Clause 20(e) — AER requires technology assessment for surface leak detection</div>
+      </div>
+      <div class="data-item">
+        <h4>Downhole Microseismic Arrays</h4>
+        <p>Assessment of need for downhole microseismic arrays in deep monitoring wells for induced seismicity detection. Surface arrays may be insufficient for detecting low-magnitude events at depth.</p>
+        <div class="ref">Approval No. 13513, Clause 20(c) — AER may require this as a special report item</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 8 -->
+  <div class="card" id="s8">
+    <div class="card-header" onclick="toggleCard('s8')">
+      <h3><span class="sec-num">8</span> Public Consultation & Stakeholder Engagement</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Participant Involvement Program</h4>
+        <p>Identify all persons who may be directly and adversely affected. Minimum notification radius per AER Directive 056. Document consultation efforts: letters, meetings, open houses. Record concerns raised and how they were addressed.</p>
+        <div class="ref">D056 sets the framework — D065 adds CO₂-specific consultation requirements</div>
+      </div>
+      <div class="data-item important">
+        <h4>Indigenous Consultation</h4>
+        <p>Crown consultation obligations for First Nations and Métis communities with traditional territory in the project area. Document engagement with relevant Treaty organizations and Métis Nation of Alberta.</p>
+      </div>
+      <div class="data-item">
+        <h4>Objection Resolution</h4>
+        <p>If objections are filed, document ADR (Appropriate Dispute Resolution) efforts. If unresolved, the application may be referred to an AER hearing. Prepare for regulatory hearing process.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 9 -->
+  <div class="card" id="s9">
+    <div class="card-header" onclick="toggleCard('s9')">
+      <h3><span class="sec-num">9</span> Emergency Response Plan (ERP)</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Emergency Planning Zone (EPZ)</h4>
+        <p>Calculate EPZ per AER Directive 071. For CO₂ storage, consider H₂S content (if any) in the stream. If pure CO₂, EPZ may be based on CO₂ release dispersion modelling. Include worst-case release scenario.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Response Procedures</h4>
+        <p>Detection → Assessment → Notification → Response → Remediation. Specific procedures for: wellhead leak, subsurface containment loss, pipeline rupture (if applicable). Include decision trees and roles/responsibilities.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Notification Requirements</h4>
+        <p>AER emergency line, local authorities, affected residents, Alberta Environment. Notification timelines per D071. Include contact lists and communication protocols.</p>
+      </div>
+      <div class="data-item">
+        <h4>Training & Drills</h4>
+        <p>Annual ERP exercises, community notification drills, tabletop exercises for containment loss scenarios. Document training records and exercise outcomes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 10 -->
+  <div class="card" id="s10">
+    <div class="card-header" onclick="toggleCard('s10')">
+      <h3><span class="sec-num">10</span> Financial Assurance & Liability</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Closure Cost Estimate</h4>
+        <p>Detailed cost estimate for: well abandonment (all wells), facility decommissioning, surface reclamation, post-closure monitoring. Use current AER cost benchmarks. Include contingency (typically 15-25%).</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Financial Security Instrument</h4>
+        <p>Form of security (letter of credit, surety bond, AER-approved alternatives). Amount must cover full closure cost estimate. Security must be in place before injection commences.</p>
+        <div class="ref">Alberta's Regulatory Assurance Framework — ensure LMR (Licensee Management Rating) compliance</div>
+      </div>
+      <div class="data-item important">
+        <h4>Long-Term Liability Transfer</h4>
+        <p>Post-closure liability transfer to the Crown under the Carbon Sequestration Tenure Regulation. Criteria: demonstrate containment, plume stability, pressure dissipation, no material risk. Typical minimum post-injection period: 10-20 years.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 11 -->
+  <div class="card" id="s11">
+    <div class="card-header" onclick="toggleCard('s11')">
+      <h3><span class="sec-num">11</span> Closure & Post-Injection Site Care (PISC)</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag required">Required</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item critical">
+        <h4>Well Abandonment Plan</h4>
+        <p>Abandonment procedures for all injection and monitoring wells per AER Directive 020. CO₂-resistant cement requirements. Abandonment pressure testing criteria. Sequence and timeline.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>PISC Monitoring Program</h4>
+        <p>Reduced-intensity monitoring program post-injection. Define: what is monitored, frequency, success criteria for demonstrating containment and stability. Adaptive management — reduce monitoring as confidence in containment grows.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Closure Criteria</h4>
+        <p>Measurable criteria for site closure and liability transfer: (1) pressure stabilization, (2) plume extent matches or is within predictions, (3) no evidence of containment loss, (4) all wells properly abandoned, (5) surface reclamation complete.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 12 -->
+  <div class="card" id="s12">
+    <div class="card-header" onclick="toggleCard('s12')">
+      <h3><span class="sec-num">12</span> Environmental Assessment</h3>
+      <div style="display:flex;align-items:center;gap:10px"><span class="tag recommended">Recommended</span><span class="arrow">▶</span></div>
+    </div>
+    <div class="card-body">
+      <div class="data-item important">
+        <h4>Environmental Impact Assessment</h4>
+        <p>Surface disturbance (well pads, access roads, pipelines), wildlife and vegetation, wetlands, historical resources. May require EPEA approval from Alberta Environment depending on project scale. Federal Impact Assessment Act may apply for cross-provincial projects.</p>
+      </div>
+      <div class="data-item">
+        <h4>Greenhouse Gas Accounting</h4>
+        <p>Net GHG balance: CO₂ stored minus emissions from capture, compression, transportation, injection operations. Life-cycle analysis. Quantification protocol for Alberta TIER/federal OBPS credits.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 2: COMPLIANCE CHECKLIST ==================== -->
+<div class="panel" id="checklist">
+  <h2>D065 Compliance Checklist — CO₂ Storage Scheme</h2>
+  <p class="section-intro">Track your application completeness. Check items as you prepare each component. Progress is maintained during your session.</p>
+
+  <div class="progress-bar-container">
+    <div class="progress-header">
+      <h3>Application Completeness</h3>
+      <div class="pct" id="pct">0%</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-stats">
+      <span id="statComplete">0 completed</span>
+      <span id="statRemain">0 remaining</span>
+      <span id="statRequired">0 required items pending</span>
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="checklist-actions">
+    <button class="btn btn-save" onclick="saveProgress()">&#10003; Save Progress</button>
+    <button class="btn btn-pdf" onclick="downloadPDF()">&#8615; Download PDF</button>
+    <button class="btn btn-clear" onclick="clearProgress()">&#10005; Clear All</button>
+    <span class="save-status" id="saveStatus"></span>
+  </div>
+
+  <!-- Checklist Groups -->
+  <div id="checklistContent"></div>
+</div>
+
+<!-- ==================== TAB 3: SUBMISSION GUIDE ==================== -->
+<div class="panel" id="guide">
+  <h2>Step-by-Step D065 Submission Guide</h2>
+  <p class="section-intro">The AER D065 submission process from pre-application to approval. Typical timeline: 6-18 months depending on complexity, consultation outcomes, and completeness of the application.</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 2-4 weeks before application</div>
+      <h3>Pre-Application Meeting with AER</h3>
+      <p>Request a pre-application meeting with the AER's CCS team. Present the project concept, target formation, and high-level technical approach. This is not mandatory but <strong>strongly recommended</strong> — it reveals what the AER will focus on and can prevent months of deficiency responses.</p>
+      <div class="tip">💡 Bring your geological cross-sections and preliminary simulation results. AER reviewers engage more deeply with visual technical content. Ask specifically about their expectations for AoR methodology and MMV plan scope.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 4-8 weeks (must be completed before application submission)</div>
+      <h3>Public Consultation (Directive 056)</h3>
+      <p>Initiate participant involvement per AER Directive 056. Send notification letters to all landowners, residents, and occupants within the prescribed distance. Hold information sessions for the local community. Document all interactions meticulously — the AER will review your consultation record.</p>
+      <div class="warn-tip">⚠️ Do NOT underestimate the time this takes. Objections from stakeholders can delay your project by 6-12+ months if the application goes to a hearing. Early, transparent engagement is the single best risk mitigation.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 2-6 months (concurrent with consultation)</div>
+      <h3>Prepare Technical Application Package</h3>
+      <p>Compile all 12 sections of the D065 application using the template in this tool. Key workstreams typically running in parallel:</p>
+      <ul class="sub-list">
+        <li>Geological characterization and reservoir modelling (longest lead time)</li>
+        <li>AoR delineation and existing well inventory</li>
+        <li>Risk assessment and MMV plan</li>
+        <li>Well design and facilities engineering</li>
+        <li>ERP and closure plan</li>
+        <li>Financial assurance arrangements</li>
+      </ul>
+      <div class="tip">💡 The most common deficiency from AER: insufficient uncertainty quantification in reservoir simulation. Always provide P10/P50/P90 ranges and sensitivity analysis. Single deterministic cases are not acceptable.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 1-2 weeks</div>
+      <h3>Internal QA/QC Review</h3>
+      <p>Before submission, conduct a thorough internal review:</p>
+      <ul class="sub-list">
+        <li>Cross-reference all data between sections (depths, coordinates, formation names must be consistent)</li>
+        <li>Verify all maps are properly geo-referenced and at appropriate scale</li>
+        <li>Ensure simulation model inputs match geological description</li>
+        <li>Confirm AoR encompasses all scenarios (not just base case)</li>
+        <li>Verify financial security amount covers updated closure cost estimate</li>
+      </ul>
+      <div class="warn-tip">⚠️ Use the Compliance Checklist tab to ensure no section is missing. Incomplete applications are returned without review — costing you weeks.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 1 day</div>
+      <h3>Submit via AER OneStop</h3>
+      <p>Submit the complete application package through AER's OneStop online system. Include the cover letter (use the sample cover letter template from Downloads), all technical appendices, and consultation record. Pay applicable fees.</p>
+      <ul class="sub-list">
+        <li>Application must be signed by authorized company representative</li>
+        <li>All well licence applications (if needed) can be bundled</li>
+        <li>Digital data submissions per AER data requirements</li>
+        <li>Retain submission confirmation number</li>
+      </ul>
+      <div class="tip">💡 Submit early in the week (Monday/Tuesday). Submissions on Friday afternoon tend to get assigned later. This is informal but real.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 2-4 weeks after submission</div>
+      <h3>Completeness Review</h3>
+      <p>AER conducts an initial completeness check. They verify all required sections are present and all data files are accessible. This is NOT a technical review — it only confirms the application package is complete. If deficiencies found, you'll receive a completeness deficiency letter.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 3-12 months</div>
+      <h3>Technical Review & Information Requests</h3>
+      <p>AER's technical reviewers (geologists, engineers, environmental scientists) conduct detailed assessment. Expect Supplemental Information Requests (SIRs). Common SIR topics:</p>
+      <ul class="sub-list">
+        <li>Additional sensitivity runs or uncertainty scenarios in simulation</li>
+        <li>Clarification on fault seal analysis or caprock integrity</li>
+        <li>More detail on MMV technology selection and detection limits</li>
+        <li>Updated AoR based on revised simulation results</li>
+        <li>Well integrity details for specific offset wells</li>
+      </ul>
+      <div class="tip">💡 Respond to SIRs quickly and completely. Each round of SIRs adds 1-3 months. Front-loading quality into the original application pays dividends here.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">8</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: varies</div>
+      <h3>Hearing (if applicable)</h3>
+      <p>If stakeholder objections remain unresolved, AER may schedule a regulatory hearing. The hearing panel will assess both technical merits and stakeholder concerns. Prepare expert witnesses and technical evidence packages.</p>
+      <div class="warn-tip">⚠️ Hearings are rare for CCS projects in Alberta but possible. The Bashaw area acid gas hearing (2014) set important precedents. Be prepared to defend your risk assessment and MMV plan under cross-examination.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">9</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: 2-4 weeks after review complete</div>
+      <h3>Decision & Conditions</h3>
+      <p>AER issues approval (with conditions) or denial. Approval conditions typically include: specific MMV requirements, reporting schedules, maximum injection parameters, financial security amount. The approval letter becomes your operational licence.</p>
+      <div class="tip">💡 Review all conditions carefully. Some conditions require action before injection commences (e.g., baseline monitoring, well integrity verification). Build condition compliance into your project schedule.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">10</div>
+    <div class="step-content">
+      <div class="timeline">Timeline: Ongoing (24-month hard deadline)</div>
+      <h3>Phased Well Approvals (if applicable)</h3>
+      <p>If your scheme includes undrilled wells, each requires a <strong>separate D065 application</strong> after drilling with: updated geological interpretation, bounding formation assessment, BHP/sandface/fracture pressures, PTA analysis, and CO₂ plume/pressure model re-runs. You have a <strong>24-month hard deadline</strong> from scheme approval — AER will not grant extensions and may rescind approvals.</p>
+      <div class="warn-tip">⚠️ This is a use-it-or-lose-it clause. Plan your drilling program, post-drill evaluation, and application prep timeline from day one. See the Approval Intelligence tab for full details from Approval No. 13513.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">11</div>
+    <div class="step-content">
+      <h3>Pre-Injection Compliance</h3>
+      <p>Before first injection, ALL gate conditions must be cleared: D051 and D071 confirmed by AER in writing, MMV plan commitments met, closure plan approved, seismic hazard assessment accepted. Additionally:</p>
+      <ul class="sub-list">
+        <li>Complete baseline monitoring (minimum 12 months)</li>
+        <li>Verify CSTA is current and covers all well locations</li>
+        <li>Confirm financial security is posted</li>
+        <li>Prepare Petrinex well status codes (Fluid: CO2, Mode: N/A, Type: INJ, Structure: CARBON SEQU)</li>
+        <li>Conduct pre-injection pressure test</li>
+        <li>Notify AER of planned injection start date</li>
+      </ul>
+      <div class="tip">💡 The 3-month offset well risk assessment deadline starts from injection commencement. Have your initial well integrity work done before you start injecting so you can meet this deadline.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 4: DOWNLOADS ==================== -->
+<div class="panel" id="downloads">
+  <h2>Companion Calculators & Templates</h2>
+  <p class="section-intro">Downloadable tools to support your D065 application. The AoR calculator provides analytical estimates — always validate with numerical simulation for the final submission.</p>
+
+  <a class="dl-card" href="data/D065_AoR_Capacity_Calculator.xlsx" download style="text-decoration:none;color:inherit;cursor:pointer">
+    <div class="dl-icon xlsx">📊</div>
+    <div class="dl-info">
+      <h3>AoR & Storage Capacity Calculator</h3>
+      <p>Multi-method analytical calculator: Radial Buckley-Leverett plume radius, Theis-based pressure front radius, and USDOE volumetric storage capacity estimation. Includes comparison summary and input validation.</p>
+    </div>
+    <div class="dl-status ready">⬇ Download XLSX</div>
+  </a>
+
+  <a class="dl-card" href="data/D065_Sample_Cover_Letters.docx" download style="text-decoration:none;color:inherit;cursor:pointer">
+    <div class="dl-icon docx">📝</div>
+    <div class="dl-info">
+      <h3>Sample Cover Letters</h3>
+      <p>Pre-formatted cover letter templates for D065 CO₂ storage scheme application submission to AER. Includes new scheme application and scheme amendment variants.</p>
+    </div>
+    <div class="dl-status ready">⬇ Download DOCX</div>
+  </a>
+
+  <a class="dl-card" href="data/D065_Annual_Compliance_Report_Template.xlsx" download style="text-decoration:none;color:inherit;cursor:pointer">
+    <div class="dl-icon xlsx">📋</div>
+    <div class="dl-info">
+      <h3>D065 Annual Compliance Report Template</h3>
+      <p>Pre-structured 11-sheet Excel workbook for Clause 21 annual progress reporting: cover page, operations summary, pressure analysis, scheme performance, MMV results, 13-parameter monthly data table per well, cumulative volume tables, Hall plot with auto-chart, daily injection plots (rate, WHP, BHIP, reservoir P), and forward-looking assessments. Yellow = input, green = auto-calculated.</p>
+    </div>
+    <div class="dl-status ready">⬇ Download XLSX</div>
+  </a>
+
+  <div class="divider"></div>
+  <h3 class="mb-8">AER Reference Links</h3>
+  <p style="font-size:0.88rem;color:var(--text2);line-height:1.8">
+    <a href="https://www.aer.ca/regulating-development/rules-and-directives/directives/directive-065" target="_blank">AER Directive 065</a> — Requirements for Acid Gas Injection and CO₂ Storage Schemes<br>
+    <a href="https://www.aer.ca/regulating-development/rules-and-directives/directives/directive-056" target="_blank">AER Directive 056</a> — Energy Development Applications and Schedules<br>
+    <a href="https://www.aer.ca/regulating-development/rules-and-directives/directives/directive-020" target="_blank">AER Directive 020</a> — Well Abandonment Requirements<br>
+    <a href="https://www.aer.ca/regulating-development/rules-and-directives/directives/directive-071" target="_blank">AER Directive 071</a> — Emergency Preparedness and Response<br>
+    <a href="https://www.alberta.ca/carbon-sequestration-tenure" target="_blank">Carbon Sequestration Tenure Regulation</a> — Pore space rights and liability transfer<br>
+    <a href="https://www.aer.ca/providing-information/data-and-reports/onestop" target="_blank">AER OneStop</a> — Online application submission portal
+  </p>
+</div>
+
+<!-- ==================== TAB 5: APPROVAL INTELLIGENCE ==================== -->
+<div class="panel" id="approval">
+  <h2>Approval Intelligence — What AER Actually Conditions</h2>
+  <p class="section-intro">
+    Understanding what AER conditions in approvals helps you prepare a stronger application. This annotated case study is based on
+    <strong>CO₂ Sequestration Approval No. 13513</strong> — a real Class III scheme approval issued March 10, 2026. Every clause is annotated with strategic implications for your application.
+  </p>
+
+  <div class="approval-header-box">
+    <h3>Case Study: Approval No. 13513</h3>
+    <div class="meta">
+      <span><strong>Operator:</strong>&nbsp;Wolf Carbon Hub Gp Inc.</span>
+      <span><strong>Field:</strong>&nbsp;Willingdon Field &amp; surrounding areas</span>
+      <span><strong>Formations:</strong>&nbsp;Earlie &amp; Basal Cambrian Sandstone</span>
+      <span><strong>Issued:</strong>&nbsp;March 10, 2026</span>
+      <span><strong>Class:</strong>&nbsp;III</span>
+    </div>
+  </div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">Pre-Injection Gate Conditions</h3>
+  <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px">AER blocks injection until ALL of these gates are cleared. Your application should demonstrate readiness for each.</p>
+
+  <div class="gate"><div class="gate-icon blocked">1</div><div class="gate-text"><strong>Directive 051 (Injection Requirements)</strong> — AER must confirm in writing that D051 requirements are met. Includes well classification, injection rate limits, and pressure constraints.</div></div>
+  <div class="gate"><div class="gate-icon blocked">2</div><div class="gate-text"><strong>Directive 071 (Emergency Response)</strong> — ERP must be confirmed complete and approved before injection can commence.</div></div>
+  <div class="gate"><div class="gate-icon blocked">3</div><div class="gate-text"><strong>Seismic Hazard Assessment</strong> — Approval is contingent on seismic risk assessment AND ongoing MMR (monitoring, mitigation, response) plan. This is non-negotiable.</div></div>
+  <div class="gate"><div class="gate-icon blocked">4</div><div class="gate-text"><strong>MMV Plan Commitments</strong> — All commitments in the approved MMV plan must be met, substantially and in accordance with the scheme, before injection starts.</div></div>
+  <div class="gate"><div class="gate-icon blocked">5</div><div class="gate-text"><strong>Closure Plan Approval</strong> — The closure plan must be approved by AER. This is a pre-injection requirement, not a post-injection afterthought.</div></div>
+
+  <div class="annotation">
+    <div class="annotation-label">Strategic Implication</div>
+    <p>Your application must include fully developed MMV, ERP, closure, and seismic monitoring plans — not placeholders. AER will not approve injection until each plan is validated. Build your project schedule around these sequential gates.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">Phased Well Approval Process (Clauses 6-8)</h3>
+
+  <div class="clause" id="cl6">
+    <div class="clause-header" onclick="toggleCard('cl6')">
+      <span class="clause-num">CL 6-7</span>
+      <span class="clause-title">Undrilled Wells Require Separate D065 Applications</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:12px">The scheme may be approved with undrilled wells listed, but those wells CANNOT inject until a separate D065 application is submitted and approved with:</p>
+      <div class="data-item critical">
+        <h4>Minimum Requirements for Undrilled Well Applications</h4>
+        <p>a) Geological interpretation: updated gross sand isopach map, updated storage capacity, interpreted log cross-sections with stratigraphic interpretation, completions/treatments, KB elevation, net thickness/permeability/porosity tabulation</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Bounding Formation Assessment</h4>
+        <p>b) Lithology, continuity and thickness of base and caprock, integrity of base and caprock, fracturing assessment (if fracturing evident, explain how containment is still assured), target zone pressure from stabilized shut-in survey (D040)</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Pressure Limits</h4>
+        <p>c) Bottomhole injection pressure, maximum sandface pressure, fracture propagation pressure, and formation fracture pressure for each well</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Pressure Transient Analysis</h4>
+        <p>d) Stabilized shut-in reservoir pressure survey per D040, accompanied by PTA that may indicate fracture flow</p>
+      </div>
+      <div class="data-item important">
+        <h4>Model Re-runs Required</h4>
+        <p>e) Must address the need to rerun CO₂ plume and pressure front dynamic models after each well is drilled</p>
+      </div>
+      <div class="data-item important">
+        <h4>MMV Evidence</h4>
+        <p>f) Evidence that current MMV plan commitments have been met</p>
+      </div>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Plan your well program assuming each new well needs its own mini-application. Budget for post-drill geological interpretation, PTA, and model updates. This is not a single-approval-covers-all situation — AER validates each well individually.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl8">
+    <div class="clause-header" onclick="toggleCard('cl8')">
+      <span class="clause-num">CL 8</span>
+      <span class="clause-title">24-Month Hard Deadline for Undrilled Well Applications</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:8px">The D065 application for undrilled wells must be submitted within 24 months of the approval date. <strong>AER will not grant extensions</strong> and may rescind the scheme or undrilled well approvals without further notice.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>This is a use-it-or-lose-it clause. If your well program extends beyond 24 months from scheme approval, you risk losing approved well locations. Factor drilling timelines, post-drill evaluation, and application preparation into your project schedule from day one.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">Operational Limits &amp; Constraints (Clause 14)</h3>
+  <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px">These are the specific operational parameters AER imposed. Your application should propose limits consistent with these benchmarks.</p>
+
+  <div class="clause" id="cl14">
+    <div class="clause-header" onclick="toggleCard('cl14')">
+      <span class="clause-num">CL 14</span>
+      <span class="clause-title">Injection Constraints &amp; Monitoring Requirements</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <div class="data-item critical">
+        <h4>Pressure Limits</h4>
+        <p>Wells are BHP-limited and must be equipped with bottomhole pressure gauges. Maximum average formation stabilized shut-in reservoir pressure: <strong>26,000 kPa (gauge)</strong>. This becomes the scheme's pressure ceiling.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>Volume Limits</h4>
+        <p>Per-well maximum: <strong>650 MMscm/yr (1.2 Mt/yr)</strong> at standard conditions (15°C, 101.325 kPa). Scheme total: <strong>13,000 MMscm (24 Mt)</strong> cumulative across all wells.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>CO₂ Purity Requirement</h4>
+        <p>Injection fluid must contain <strong>no less than 95% CO₂ by volume</strong>. Monthly representative sampling of injection stream composition required. No waste or other materials may be added.</p>
+      </div>
+      <div class="data-item important">
+        <h4>2-Year Pressure Test Cycle</h4>
+        <p>Stabilized shut-in BHP test per D040 every 2 years in each injection or observation well. Supplementary surveys may be required based on results.</p>
+      </div>
+      <div class="data-item important">
+        <h4>2-Year Hydraulic Isolation Log Cycle</h4>
+        <p>Hydraulic isolation log per D051 in injection and deep monitoring wells every 2 years. AER determines if supplementary logging is needed during annual reporting review.</p>
+      </div>
+      <div class="data-item important">
+        <h4>Annular Monitoring &amp; Well Integrity</h4>
+        <p>Continuous tubing/casing annulus pressure monitoring. Annual packer isolation tests submitted via AER DDS by Dec 31. Corrosion protection required. Emergency shutdown valves installed and periodically tested.</p>
+      </div>
+      <div class="data-item">
+        <h4>Immediate Suspension Triggers</h4>
+        <p>Must immediately suspend injection if: (i) fluid migrates to unapproved zones, (ii) any equipment, monitoring, or safety device fails. Must immediately report loss of containment, out-of-zone fracturing, or anomalous pressure changes to ResourceCompliance@aer.ca.</p>
+      </div>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Design your injection parameters conservatively relative to these limits. If you propose 90% of the pressure ceiling, AER will scrutinize harder. Leave headroom. Also budget for biannual pressure testing and isolation logging — these are non-trivial operational costs.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">Post-Approval Compliance Obligations</h3>
+  <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px">These obligations begin the moment you receive approval. Understanding them before you apply ensures your MMV and operational plans are adequate.</p>
+
+  <div class="clause" id="cl9a">
+    <div class="clause-header" onclick="toggleCard('cl9a')">
+      <span class="clause-num">CL 9</span>
+      <span class="clause-title">AOI Drilling Activity &amp; Hydraulic Fracturing Risk Update</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Must provide an update of all drilling activity in the AOI since approval date. Confirm no new wells with potential hydraulic isolation risks. Must include risk assessment of loss of hydraulic isolation from hydraulic fracturing in overlying/underlying formations.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>If there's active unconventional development (e.g., Duvernay, Montney fracking) near your CCS project, AER will want you to assess whether frac jobs have compromised the seal or created communication pathways. Address this proactively in your risk assessment.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl10a">
+    <div class="clause-header" onclick="toggleCard('cl10a')">
+      <span class="clause-num">CL 10-11</span>
+      <span class="clause-title">CSTA Maintenance &amp; Mineral Rights Notification</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Must provide evidence of continued maintenance of the <strong>Carbon Sequestration Tenure Agreement (CSTA)</strong> from the Alberta Crown at time of D065 submission. Must review mineral rights ownership and well licensees in the area and notify all new holders/licensees and parties with known concerns before application submission.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Your CSTA is a prerequisite — not a parallel track. Ensure your pore space tenure is current and covers all well locations. Also, mineral rights notification is a D065 requirement beyond D056 consultation — do not confuse the two.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl13a">
+    <div class="clause-header" onclick="toggleCard('cl13a')">
+      <span class="clause-num">CL 13</span>
+      <span class="clause-title">Petrinex Well Status Codes</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Injection well status in Petrinex must be changed to: <strong>Fluid: CO2 | Mode: N/A | Type: INJ | Structure: CARBON SEQU</strong> as soon as injection commences. This enables recording of injection volumes and density data. Contact: pa.help@aer.ca</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>This is an administrative step that's easy to overlook. Have your production accounting team ready to update Petrinex codes on day one of injection. Delays here create data gaps in your compliance record.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl15a">
+    <div class="clause-header" onclick="toggleCard('cl15a')">
+      <span class="clause-num">CL 15</span>
+      <span class="clause-title">Incident Reporting — 90-Day Written Report</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Written incident report required within 90 days to ResourceCompliance@aer.ca AND WellOperations@aer.ca for any event posing imminent risk: (a) fracturing out of zone, (b) loss of containment, (c) unexpected surface heave. If monitoring shows loss of containment or surface heave, must conduct and submit comprehensive subsurface modelling using site-specific parameters.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Your application should include a geomechanical assessment of surface heave potential (InSAR baseline). If you don't address this upfront, AER will condition you to assess it reactively — which is more expensive and time-pressured.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl17a">
+    <div class="clause-header" onclick="toggleCard('cl17a')">
+      <span class="clause-num">CL 17</span>
+      <span class="clause-title">MMV &amp; Closure Plans — 3-Year Validity</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Approved MMV and Closure plans are valid for <strong>3 years</strong> from commencement of injection into any well. Updated plans must be submitted <strong>at least 90 days before expiry</strong> or when requesting significant amendments. Submissions via D065 application through AER DDS.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Your MMV plan is not a set-and-forget document. Budget for plan revisions at Year 2.5 based on operational learnings. Design your initial MMV plan with adaptive management triggers so updates are data-driven, not just calendar-driven.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl18a">
+    <div class="clause-header" onclick="toggleCard('cl18a')">
+      <span class="clause-num">CL 18</span>
+      <span class="clause-title">Offset Well Risk Assessment — Phased Deadlines</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Must perform, document, and submit an updated risk assessment to AER for ALL wells terminated at or traversing the target formations (abandoned, suspended, or active) within the projected plume area.</p>
+      <div class="data-item critical">
+        <h4>Phased Timeline</h4>
+        <p><strong>Within 3 months of injection start:</strong> Initial risk assessment covering wells likely impacted by plume within 2 years.<br>
+        <strong>Within 1 year of injection start:</strong> Full risk assessment encompassing ALL wells in the projected plume area.<br>
+        <strong>Medium-to-high risk wells:</strong> Must be mitigated BEFORE the fluid plume reaches them.</p>
+      </div>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Start your offset well risk assessment during the application phase, not after approval. The 3-month deadline is tight. If mitigation work (squeeze cementing, re-abandonment) is needed, those wells are on your critical path.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl19a">
+    <div class="clause-header" onclick="toggleCard('cl19a')">
+      <span class="clause-num">CL 19</span>
+      <span class="clause-title">Thermal Fracturing Geomechanical Assessment</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Must submit a revised geomechanical modelling report for <strong>thermal fracturing assurance</strong> within 2 years of initiating injection, or with the first annual report (whichever is first).</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Cold CO₂ injection into warm formations creates thermal stress that can fracture rock near the wellbore. Include a preliminary thermal-mechanical analysis in your application to demonstrate awareness. AER will condition you to refine it post-injection with real temperature data.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl20a">
+    <div class="clause-header" onclick="toggleCard('cl20a')">
+      <span class="clause-num">CL 20</span>
+      <span class="clause-title">Special Report Requirements</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">AER required a special report (due June 30, 2027) covering:</p>
+      <ul class="sub-list">
+        <li>Phased assessment of natural variability of geochemistry in domestic water wells (baseline study)</li>
+        <li>Statistical significance methodology for number of landowner water wells in baseline data</li>
+        <li>Potential need for downhole microseismic arrays in deep monitoring wells</li>
+        <li>Geomechanical testing of primary seal</li>
+        <li>Technologies for monitoring vegetation health changes due to surface leaks</li>
+      </ul>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>These are emerging AER expectations. Address each proactively in your application: (1) design a statistically robust groundwater baseline, (2) consider downhole microseismic as part of your MMV, (3) include seal geomechanics in your caprock assessment, (4) mention InSAR and vegetation monitoring technologies. Applicants who address these upfront signal regulatory maturity.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">Annual Reporting Requirements (Clause 21)</h3>
+  <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px">Annual progress reports due March 1 each year. The scope is extensive — your MMV plan and data management system should be designed to produce this output.</p>
+
+  <div class="clause" id="cl21a">
+    <div class="clause-header" onclick="toggleCard('cl21a')">
+      <span class="clause-num">CL 21</span>
+      <span class="clause-title">Annual Report — Complete Requirements</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <div class="data-item critical">
+        <h4>a) Operations Summary</h4>
+        <p>New wells drilled, workovers/treatments, changes in injection equipment, identification of problems and remedial actions.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>b) Pressure Analysis</h4>
+        <p>Stabilized formation pressure surveys, comparison of actual vs. expected pressure, updated estimate of cumulative volume at max shut-in pressure (26,000 kPa).</p>
+      </div>
+      <div class="data-item critical">
+        <h4>c) Scheme Performance &amp; Updated Models</h4>
+        <p>How formation pressure is changing over time, updated geological maps, updated CO₂ plume extent and pressure distribution models using all new data since last model run.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>d) MMV Results</h4>
+        <p>Events exceeding approved requirements, comparison of measured vs. predicted performance, operations and maintenance summary, performance or MMV issues, pressure surveys, corrosion data, fluid analyses, logs, and discussion of MMV plan changes needed.</p>
+      </div>
+      <div class="data-item critical">
+        <h4>e) Monthly Data Table — 13 Parameters Per Well</h4>
+        <p>For each well, for each month: (i) CO₂ mole fraction &amp; stream composition, (ii) injection stream density, (iii) volume and mass at standard conditions, (iv) formation volume factor, (v) cumulative volume and mass since scheme start, (vi) volume and mass at reservoir conditions, (vii) hours on injection, (viii) max daily rate, (ix) average daily rate, (x) BHIP and wellhead temp, (xi) average BHIP and wellhead temp, (xii) BHIP at top of interval with BH temp, (xiii) average BHIP at top of interval with average BH temp.</p>
+      </div>
+      <div class="data-item important">
+        <h4>f-g) Volume Tables &amp; Hall Plots</h4>
+        <p>Monthly and cumulative CO₂ volumes/mass. Hall plots of constant average reservoir pressure where unexplained anomalous injection rate and pressure data could indicate fracturing.</p>
+      </div>
+      <div class="data-item important">
+        <h4>h) Daily Plots (from commencement)</h4>
+        <p>Daily CO₂ injection rate, wellhead and bottomhole injection pressures, estimated or measured average reservoir pressure — all vs. time from start of injection.</p>
+      </div>
+      <div class="data-item">
+        <h4>i-k) Forward-Looking Assessments</h4>
+        <p>Need for additional monitoring wells at pressure front periphery, need for additional deep monitoring wells adjacent to injection wells, and stakeholder engagement activities during reporting period.</p>
+      </div>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>This is a massive data management and reporting obligation. Your MMV plan should specify how each of these 13+ parameters will be acquired, stored, QA'd, and reported. If your data infrastructure can't produce this output, your MMV plan is inadequate. Download the <strong>D065 Annual Compliance Report Template</strong> from the Calculators &amp; Downloads tab — pre-structured for all Clause 21(a)–(k) requirements.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">Other Key Conditions</h3>
+
+  <div class="clause" id="cl16a">
+    <div class="clause-header" onclick="toggleCard('cl16a')">
+      <span class="clause-num">CL 16, 22</span>
+      <span class="clause-title">Seismic Monitoring &amp; TLP Activation</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Must provide written notification upon detection of seismic events. TLP must be activated immediately. If any well becomes seismogenic, must submit seismic risk assessment and updated MMR plan per D065.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>Your TLP must be operationally ready before injection starts — not a paper exercise. Define clear magnitude thresholds (typically ML 0.0 yellow, ML 2.0 orange, ML 4.0 red) and corresponding operational responses. AER Subsurface Order No. 2 provides the framework.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clause" id="cl23a">
+    <div class="clause-header" onclick="toggleCard('cl23a')">
+      <span class="clause-num">CL 23-25</span>
+      <span class="clause-title">Transfer, Amendment &amp; Revocation</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="clause-body">
+      <p style="font-size:0.85rem;color:var(--text2)">Scheme cannot be transferred without express written consent of the Minister of Alberta Energy and Minerals (per the CSTA). Must continue to operate per D065 as amended. AER may vary, suspend, or revoke the approval at any time if circumstances warrant.</p>
+      <div class="annotation">
+        <div class="annotation-label">Strategic Implication</div>
+        <p>If your business model involves eventual asset sale or transfer, understand that the Minister must consent. This adds time and uncertainty to M&amp;A transactions. Structure your corporate arrangements accordingly from the outset.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="margin:20px 0 12px;font-size:1.05rem">AER Contact Directory</h3>
+  <p style="font-size:0.85rem;color:var(--text2);margin-bottom:12px">Different notification types go to different AER teams. Using the wrong contact creates compliance gaps.</p>
+
+  <div class="contact-card">
+    <div class="cc-label">Resource Compliance</div>
+    <div class="cc-email">ResourceCompliance@aer.ca</div>
+    <div class="cc-when">Loss of containment, seismic events, risk assessments, annual reports, special reports</div>
+  </div>
+  <div class="contact-card">
+    <div class="cc-label">Well Operations</div>
+    <div class="cc-email">WellOperations@aer.ca</div>
+    <div class="cc-when">Annular leaks, packer failures, well abandonment plans, incident reports</div>
+  </div>
+  <div class="contact-card">
+    <div class="cc-label">Production Accounting</div>
+    <div class="cc-email">pa.help@aer.ca</div>
+    <div class="cc-when">Petrinex well status codes, injection volume reporting</div>
+  </div>
+
+  <h3 style="margin:24px 0 12px;font-size:1.05rem">Post-Approval Compliance Timeline</h3>
+  <div class="timeline-bar">
+    <div class="tl-item"><div class="tl-when">Pre-Injection</div><div class="tl-what">D051 + D071 confirmed, MMV baseline complete, Closure plan approved, CSTA current, Petrinex codes ready</div></div>
+    <div class="tl-item"><div class="tl-when">Month 3</div><div class="tl-what">Initial offset well risk assessment (wells within 2-year plume)</div></div>
+    <div class="tl-item"><div class="tl-when">Year 1</div><div class="tl-what">Full offset well risk assessment, first annual report</div></div>
+    <div class="tl-item"><div class="tl-when">Year 2</div><div class="tl-what">First D040 pressure test, D051 hydraulic isolation log, thermal fracturing geomech report</div></div>
+    <div class="tl-item"><div class="tl-when">24 Months</div><div class="tl-what">HARD DEADLINE: D065 applications for undrilled wells or lose approvals</div></div>
+    <div class="tl-item"><div class="tl-when">Year 3</div><div class="tl-what">MMV &amp; Closure plan renewal (submit 90 days before expiry)</div></div>
+    <div class="tl-item"><div class="tl-when">Annually</div><div class="tl-what">Progress report (March 1), packer isolation tests (Dec 31 via DDS), monthly composition sampling</div></div>
+    <div class="tl-item"><div class="tl-when">Every 2 Years</div><div class="tl-what">Stabilized BHP test (D040), hydraulic isolation log (D051)</div></div>
+  </div>
+</div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-tagline">
+    <strong>SubsurfaceAI D065 Assistant</strong> &mdash; Built to help CCS project operators navigate Alberta's CO&#8322; storage scheme approval process under AER Directive 065.
+  </div>
+  <div class="footer-disclaimer">
+    <strong>Disclaimer:</strong> This tool is provided by SubsurfaceAI for informational and planning purposes only. It does not constitute legal, regulatory, or professional engineering advice. All application materials, calculations, and submissions must be reviewed and certified by a qualified professional (P.Eng. or P.Geo.) registered in Alberta before submission to the Alberta Energy Regulator (AER). SubsurfaceAI makes no representations or warranties regarding the accuracy, completeness, or fitness for purpose of any content herein. AER requirements are subject to change &mdash; always verify against the current version of Directive 065 and your specific approval conditions. Use of this tool does not create a professional-client relationship. SubsurfaceAI accepts no liability for decisions made in reliance on this tool.
+  </div>
+  <div class="footer-bottom">
+    <span>&#169; SubsurfaceAI &middot; AER Directive 065 CO&#8322; Storage Scheme Application Assistant &middot; <strong style="color:#6b7a9a">v3.2</strong> &middot; Last updated March 2026</span>
+    <span>Alberta, Canada &middot; Not affiliated with the Alberta Energy Regulator &middot; Developed by <a href="https://www.linkedin.com/in/tahirhusen/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;font-weight:600">Tahir Chisti</a></span>
+  </div>
+</footer>
+
+<script>
+// ========== TAB NAVIGATION ==========
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  panels.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+}));
+
+// ========== CARD TOGGLE ==========
+function toggleCard(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ========== CHECKLIST DATA ==========
+const checklistData = [
+  { group: "1. General Information", items: [
+    { text: "Applicant details (legal name, BA code, contact info)", req: "required" },
+    { text: "Scheme type and purpose statement", req: "required" },
+    { text: "Well location(s) — LSD, coordinates (NAD83)", req: "required" },
+    { text: "Target formation(s) and depth intervals", req: "required" },
+    { text: "CO₂ stream composition analysis (with impurities)", req: "required" },
+    { text: "Project timeline (start, duration, volumes, closure)", req: "required" },
+    { text: "CO₂ source facility identification", req: "recommended" },
+    { text: "Carbon Sequestration Tenure Agreement (CSTA) current and validated", req: "required" },
+    { text: "Mineral rights ownership review and licensee notification", req: "required" },
+  ]},
+  { group: "2. Geological Assessment", items: [
+    { text: "Regional geological setting and basin context", req: "required" },
+    { text: "Stratigraphic column and formation descriptions", req: "required" },
+    { text: "Injection zone characterization (lithology, thickness, extent)", req: "required" },
+    { text: "Primary caprock — thickness, lithology, continuity, seal capacity", req: "required" },
+    { text: "Secondary seals identified and described", req: "recommended" },
+    { text: "Structural maps (top of injection zone)", req: "required" },
+    { text: "Fault identification, mapping, and seal analysis", req: "required" },
+    { text: "Well-log correlation panels across AoR", req: "required" },
+    { text: "Hydrogeological assessment and BGWP identification", req: "required" },
+    { text: "Geomechanical analysis (in-situ stress, fracture gradient)", req: "required" },
+    { text: "3D seismic interpretation (if available)", req: "recommended" },
+    { text: "Core data analysis and photos", req: "recommended" },
+  ]},
+  { group: "3. Reservoir & Simulation", items: [
+    { text: "Porosity distribution (core + log-derived)", req: "required" },
+    { text: "Permeability distribution (core, DST, well tests)", req: "required" },
+    { text: "Formation pressure and temperature", req: "required" },
+    { text: "Formation water chemistry and TDS", req: "required" },
+    { text: "CO₂ properties at reservoir conditions (density, viscosity)", req: "required" },
+    { text: "Relative permeability curves (CO₂-brine, drainage + imbibition)", req: "required" },
+    { text: "Capillary pressure data", req: "required" },
+    { text: "Numerical simulation model description (grid, BCs, wells)", req: "required" },
+    { text: "Base case simulation results (plume, pressure)", req: "required" },
+    { text: "Sensitivity analysis on key parameters", req: "required" },
+    { text: "P10/P50/P90 uncertainty range for storage capacity", req: "required" },
+    { text: "Trapping mechanism quantification (structural, residual, dissolution, mineral)", req: "required" },
+    { text: "History match to existing data (if available)", req: "recommended" },
+    { text: "Comparison of analytical and numerical capacity estimates", req: "recommended" },
+    { text: "Thermal fracturing assessment (thermal-mechanical analysis)", req: "recommended" },
+  ]},
+  { group: "4. Area of Review (AoR)", items: [
+    { text: "AoR delineation methodology documented", req: "required" },
+    { text: "AoR maps (end of injection + end of PISC)", req: "required" },
+    { text: "Complete well inventory within AoR (all wells penetrating seal)", req: "required" },
+    { text: "Well integrity assessment for each offset well", req: "required" },
+    { text: "Corrective action plan for deficient wells", req: "required" },
+    { text: "Legacy well assessment (<1950 wells)", req: "recommended" },
+    { text: "Hydraulic fracturing risk assessment (offset unconventional operations)", req: "required" },
+  ]},
+  { group: "5. Injection Well Design", items: [
+    { text: "Casing program (grades, weights, CO₂-resistant materials)", req: "required" },
+    { text: "Cement program (CO₂-resistant, planned TOC, volumes)", req: "required" },
+    { text: "Wellbore schematic diagram", req: "required" },
+    { text: "Maximum injection rate and pressure limits", req: "required" },
+    { text: "Injectivity analysis", req: "required" },
+    { text: "Wellhead specifications and safety systems", req: "required" },
+    { text: "Annular pressure monitoring program", req: "required" },
+    { text: "Operational procedures (start-up, operations, shut-in, emergency)", req: "recommended" },
+    { text: "Thermal stress analysis for CO₂ injection", req: "recommended" },
+  ]},
+  { group: "6. Risk Assessment", items: [
+    { text: "FEP analysis (systematic, documented screening)", req: "required" },
+    { text: "Risk register (ID, category, L×C, mitigation, residual)", req: "required" },
+    { text: "Leakage pathway assessment (caprock, wells, faults, lateral)", req: "required" },
+    { text: "Induced seismicity assessment", req: "required" },
+    { text: "Traffic Light Protocol with magnitude thresholds", req: "required" },
+    { text: "Bow-tie diagrams for top risks", req: "recommended" },
+    { text: "Quantitative risk assessment / Monte Carlo (for >1 Mt/yr)", req: "recommended" },
+  ]},
+  { group: "7. MMV Plan", items: [
+    { text: "MMV plan overview (philosophy, phasing, adaptive management)", req: "required" },
+    { text: "Baseline monitoring program (≥12 months pre-injection)", req: "required" },
+    { text: "Operational monitoring — wellhead (P, T, Q continuous)", req: "required" },
+    { text: "Operational monitoring — formation pressure (observation wells)", req: "required" },
+    { text: "Operational monitoring — groundwater", req: "required" },
+    { text: "Operational monitoring — soil gas", req: "required" },
+    { text: "Above-zone monitoring program", req: "recommended" },
+    { text: "Time-lapse seismic program (for conformance)", req: "recommended" },
+    { text: "Post-injection monitoring plan", req: "required" },
+    { text: "Data management and AER reporting protocols", req: "required" },
+    { text: "Anomaly detection thresholds and response procedures", req: "required" },
+    { text: "Hall plot analysis program for fracturing detection", req: "required" },
+    { text: "Vegetation health / surface leak monitoring technology plan", req: "recommended" },
+    { text: "Downhole microseismic array assessment", req: "recommended" },
+    { text: "Domestic water well geochemistry baseline (statistically robust)", req: "required" },
+  ]},
+  { group: "8. Public Consultation", items: [
+    { text: "D056 participant involvement program completed", req: "required" },
+    { text: "Notification letters sent (within prescribed radius)", req: "required" },
+    { text: "Consultation record (dates, attendees, concerns, responses)", req: "required" },
+    { text: "Indigenous consultation documented", req: "required" },
+    { text: "Objection resolution / ADR record (if applicable)", req: "optional" },
+  ]},
+  { group: "9. Emergency Response Plan", items: [
+    { text: "Emergency Planning Zone (EPZ) calculated per D071", req: "required" },
+    { text: "Response procedures (detection → assessment → response)", req: "required" },
+    { text: "Notification contacts and timelines", req: "required" },
+    { text: "Decision trees for containment loss scenarios", req: "required" },
+    { text: "Annual drill and training plan", req: "recommended" },
+  ]},
+  { group: "10. Financial Assurance", items: [
+    { text: "Closure cost estimate (itemized, with contingency)", req: "required" },
+    { text: "Financial security instrument identified", req: "required" },
+    { text: "LMR compliance confirmed", req: "required" },
+    { text: "Liability transfer criteria defined (CSTR)", req: "recommended" },
+  ]},
+  { group: "11. Closure & PISC", items: [
+    { text: "Well abandonment plan (D020 compliant, CO₂-resistant cement)", req: "required" },
+    { text: "PISC monitoring program defined", req: "required" },
+    { text: "Measurable closure criteria established", req: "required" },
+    { text: "Surface reclamation plan", req: "required" },
+  ]},
+  { group: "12. Environmental Assessment", items: [
+    { text: "Environmental impact assessment / screening", req: "recommended" },
+    { text: "GHG accounting and net storage quantification", req: "recommended" },
+    { text: "EPEA approval status (if required)", req: "optional" },
+  ]},
+  { group: "Submission Package", items: [
+    { text: "Cover letter signed by authorized representative", req: "required" },
+    { text: "All appendices compiled and cross-referenced", req: "required" },
+    { text: "Digital data package prepared (maps, logs, simulation files)", req: "required" },
+    { text: "Internal QA/QC review completed", req: "required" },
+    { text: "OneStop submission account set up and fees paid", req: "required" },
+    { text: "Petrinex well status codes prepared (CO2/N_A/INJ/CARBON SEQU)", req: "recommended" },
+  ]},
+];
+
+// ========== RENDER CHECKLIST ==========
+const checklistContainer = document.getElementById('checklistContent');
+let totalItems = 0;
+let totalRequired = 0;
+
+checklistData.forEach((group, gi) => {
+  let html = `<div class="checklist-group"><div class="checklist-group-title"><span class="sec-num" style="width:24px;height:24px;font-size:0.7rem">${gi+1}</span>${group.group}</div>`;
+  group.items.forEach((item, ii) => {
+    const id = `chk_${gi}_${ii}`;
+    totalItems++;
+    if(item.req === 'required') totalRequired++;
+    html += `<div class="check-item" id="ci_${gi}_${ii}">
+      <input type="checkbox" id="${id}" onchange="updateProgress()">
+      <label for="${id}">${item.text}</label>
+      <span class="tag check-tag ${item.req}">${item.req}</span>
+    </div>`;
+  });
+  html += '</div>';
+  checklistContainer.innerHTML += html;
+});
+
+function updateProgress() {
+  const boxes = document.querySelectorAll('#checklistContent input[type="checkbox"]');
+  let checked = 0, reqPending = 0;
+  boxes.forEach((b, i) => {
+    const parent = b.closest('.check-item');
+    if(b.checked) { checked++; parent.classList.add('checked'); }
+    else { parent.classList.remove('checked'); }
+  });
+  // count required pending
+  checklistData.forEach((group, gi) => {
+    group.items.forEach((item, ii) => {
+      const cb = document.getElementById(`chk_${gi}_${ii}`);
+      if(item.req === 'required' && !cb.checked) reqPending++;
+    });
+  });
+  const pctVal = Math.round((checked / totalItems) * 100);
+  document.getElementById('pct').textContent = pctVal + '%';
+  document.getElementById('progressFill').style.width = pctVal + '%';
+  document.getElementById('statComplete').textContent = checked + ' completed';
+  document.getElementById('statRemain').textContent = (totalItems - checked) + ' remaining';
+  document.getElementById('statRequired').textContent = reqPending + ' required items pending';
+  // color
+  const fill = document.getElementById('progressFill');
+  if(pctVal === 100) fill.style.background = 'var(--success)';
+  else if(pctVal > 75) fill.style.background = 'linear-gradient(90deg,var(--accent2),var(--success))';
+  else fill.style.background = 'linear-gradient(90deg,var(--accent2),var(--accent))';
+  // auto-save state to localStorage silently
+  const _s = {};
+  boxes.forEach(b => { _s[b.id] = b.checked; });
+  localStorage.setItem('aer_d065_checklist', JSON.stringify(_s));
+}
+
+// ========== WORD TEMPLATE GENERATOR ==========
+function getIncompleteRequired(groupIndex) {
+  const saved = localStorage.getItem('aer_d065_checklist');
+  if (!saved) return [];
+  const state = JSON.parse(saved);
+  const group = checklistData[groupIndex];
+  if (!group) return [];
+  return group.items.filter((item, ii) => item.req === 'required' && !state[`chk_${groupIndex}_${ii}`]).map(i => i.text);
+}
+
+function generateWordTemplate() {
+  const btn = document.getElementById('btnWord');
+  btn.classList.add('dl-generating');
+  btn.querySelector('strong').textContent = 'Generating...';
+
+    // ---- helpers ----
+    const ph = t => `<span style="color:#0077B6;font-weight:bold">${t}</span>`;
+    const note = t => `<p style="background:#EFF7FF;border-left:3px solid #0077B6;padding:6px 10px;font-size:9.5pt;color:#444;margin:6px 0"><em>AER Guidance: ${t}</em></p>`;
+    const field = (label, val) => `<p style="margin:4px 0"><strong>${label}</strong>&nbsp;${val}</p>`;
+    const blank = () => `<p style="color:#0077B6;font-weight:bold;border-bottom:1px solid #AAD4E8;margin:4px 0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>`;
+    const hr = () => `<hr style="border:none;border-top:1px solid #DDD;margin:10px 0">`;
+    const h1 = t => `<h1 style="font-size:14pt;color:#0A1628;border-bottom:2pt solid #0077B6;padding-bottom:4px;margin:0 0 8px;mso-page-break-before:always">${t}</h1>`;
+    const h2 = t => `<h2 style="font-size:11.5pt;color:#0077B6;margin:14px 0 4px">${t}</h2>`;
+    const warn = items => items.length ? `<div style="background:#FDECEA;border-left:4px solid #C0392B;padding:8px 12px;margin:8px 0"><strong style="color:#C0392B">&#9888; INCOMPLETE — ${items.length} required item(s) pending:</strong><ul style="margin:4px 0 0 16px;color:#C0392B;font-size:9.5pt">${items.map(i=>`<li>${i}</li>`).join('')}</ul></div>` : '';
+    const pageBreak = () => `<div style="page-break-after:always"></div>`;
+
+
+    // build HTML document string
+    const s1inc = warn(getIncompleteRequired(0));
+    const s2inc = warn(getIncompleteRequired(1));
+    const s3inc = warn(getIncompleteRequired(2));
+    const s4inc = warn(getIncompleteRequired(3));
+    const s5inc = warn(getIncompleteRequired(4));
+    const s6inc = warn(getIncompleteRequired(5));
+    const s7inc = warn(getIncompleteRequired(6));
+    const s8inc = warn(getIncompleteRequired(7));
+    const s9inc = warn(getIncompleteRequired(8));
+    const s10inc = warn(getIncompleteRequired(9));
+    const s11inc = warn(getIncompleteRequired(10));
+    const s12inc = warn(getIncompleteRequired(11));
+    const s13inc = warn(getIncompleteRequired(12));
+
+    const html = `<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="utf-8">
+<title>AER D065 CO\u2082 Storage Application Template</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+<style>
+  @page { margin: 2.5cm; }
+  body { font-family: Arial; font-size: 11pt; color: #111; line-height: 1.5; }
+  h1 { font-size: 14pt; color: #0A1628; border-bottom: 2pt solid #0077B6; padding-bottom: 4px; margin: 0 0 10px; mso-page-break-before: always; }
+  h1.cover-first { mso-page-break-before: avoid; }
+  h2 { font-size: 11.5pt; color: #0077B6; margin: 16px 0 4px; }
+  p { margin: 5px 0; }
+  ul { margin: 4px 0 4px 18px; }
+  li { margin: 2px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 10pt; }
+  th { background: #0077B6; color: #fff; padding: 5px 8px; text-align: left; }
+  td { padding: 4px 8px; border-bottom: 1px solid #DDD; }
+  tr:nth-child(even) td { background: #F5F8FF; }
+  .cover { text-align: center; padding: 60px 0 40px; border-bottom: 1px solid #DDD; margin-bottom: 20px; }
+  .cover h1 { font-size: 22pt; border: none; color: #0A1628; margin-bottom: 6px; mso-page-break-before: avoid; }
+  .cover .sub { font-size: 14pt; color: #0077B6; margin-bottom: 30px; }
+  .cover .fields { text-align: left; display: inline-block; font-size: 10.5pt; line-height: 2; }
+  .cover .fields strong { display: inline-block; min-width: 220px; }
+  .notice { font-size: 9pt; color: #888; font-style: italic; margin-top: 30px; }
+</style></head>
+<body>
+
+<div class="cover">
+  <p style="font-size:9pt;color:#aaa">AER Directive 065 &mdash; Working Template &mdash; SubsurfaceAI D065 Assistant</p>
+  <h1 class="cover-first">APPLICATION FOR APPROVAL<br>CO&#8322; Storage Scheme</h1>
+  <div class="sub">Pursuant to AER Directive 065</div>
+  <div class="fields">
+    ${field('Operator (Applicant):', ph('[COMPANY LEGAL NAME]'))}
+    ${field('Project / Scheme Name:', ph('[PROJECT NAME]'))}
+    ${field('Target Formation:', ph('[TARGET FORMATION NAME]'))}
+    ${field('Location:', ph('[LSD-SEC-TWP-RGE-MER]'))}
+    ${field('AER BA Code:', ph('[BA CODE]'))}
+    ${field('Application Date:', ph('[YYYY-MM-DD]'))}
+    ${field('Prepared By:', ph('[NAME, TITLE]'))}
+    ${field('Contact:', ph('[EMAIL]  |  [PHONE]'))}
+  </div>
+  <p class="notice">All fields shown in blue must be replaced with project-specific data before submission.<br>
+  Red warnings indicate checklist items flagged as incomplete in the Compliance Checklist tab.</p>
+</div>
+
+${h1('Section 1 &mdash; General Information &amp; Scheme Description')}
+${s1inc}
+${h2('1.1&nbsp;&nbsp;Applicant Details')}
+<p>${ph('[COMPANY LEGAL NAME]')} (&ldquo;the Applicant&rdquo;), a corporation incorporated under the laws of Alberta, hereby applies for approval of a CO&#8322; storage scheme pursuant to AER Directive 065. The Applicant holds AER Business Associate (BA) Code ${ph('[BA CODE]')}.</p>
+${field('Primary Contact:', ph('[CONTACT NAME]') + ', ' + ph('[TITLE]'))}
+${field('Mailing Address:', ph('[STREET, CITY, PROVINCE, POSTAL CODE]'))}
+${field('Phone:', ph('[###-###-####]') + '&nbsp;&nbsp;&nbsp;Email:&nbsp;' + ph('[email@company.com]'))}
+${note('Applicant details must match AER OneStop submission credentials exactly. Discrepancies will generate an administrative deficiency.')}
+${hr()}
+${h2('1.2&nbsp;&nbsp;Scheme Type &amp; Purpose')}
+<p>This application describes a Class ${ph('[III / IV]')} CO&#8322; storage scheme for the purpose of permanent geological storage of anthropogenic CO&#8322;. The CO&#8322; is sourced from ${ph('[CAPTURE FACILITY NAME AND LOCATION]')} via ${ph('[PIPELINE / TRUCK / OTHER]')}. This is a ${ph('[NEW SCHEME / AMENDMENT TO SCHEME NO. XXXXX]')}.</p>
+${blank()}${hr()}
+${h2('1.3&nbsp;&nbsp;Well Location(s)')}
+<p>${ph('[LSD-SEC-TWP-RGE-MER]')} &mdash; Surface coordinates (NAD83): ${ph('[latitude, longitude]')}. Bottom-hole location (if deviated): ${ph('[LSD-SEC-TWP-RGE-MER]')}.</p>
+${note('Provide a separate entry for each injection and monitoring well. Include both surface and bottom-hole LSD for deviated wells.')}
+${blank()}${hr()}
+${h2('1.4&nbsp;&nbsp;Target Formation(s)')}
+${field('Formation Name:', ph('[FORMATION NAME]'))}
+${field('Top Depth (mKB / mTVD):', ph('[depth]') + ' / ' + ph('[depth]'))}
+${field('Base Depth (mKB / mTVD):', ph('[depth]') + ' / ' + ph('[depth]'))}
+${note('If stacking multiple storage intervals, list each zone separately.')}
+${blank()}${hr()}
+${h2('1.5&nbsp;&nbsp;CO&#8322; Stream Composition')}
+<p>Full compositional analysis attached as Appendix ${ph('[X]')}:</p>
+<table><tr><th>Component</th><th>Concentration</th></tr>
+<tr><td>CO&#8322; (mol%)</td><td>${ph('[value]')}</td></tr>
+<tr><td>H&#8322;S (ppm)</td><td>${ph('[value]')}</td></tr>
+<tr><td>N&#8322; (mol%)</td><td>${ph('[value]')}</td></tr>
+<tr><td>CH&#8324; (mol%)</td><td>${ph('[value]')}</td></tr>
+<tr><td>H&#8322;O (ppm)</td><td>${ph('[value]')}</td></tr>
+<tr><td>Other impurities</td><td>${ph('[specify]')}</td></tr></table>
+${note('AER requires compositional data to assess corrosion risk, injectivity behaviour, and geochemical reactivity. Report expected range and maximum concentrations.')}
+${hr()}
+${h2('1.6&nbsp;&nbsp;Project Timeline')}
+${field('Injection Start:', ph('[YYYY-MM]'))}
+${field('Injection Duration:', ph('[X years]') + ' (' + ph('[start year]') + ' to ' + ph('[end year]') + ')')}
+${field('Total Design Volume:', ph('[X Mt CO&#8322;]') + ' (' + ph('[X kt/yr]') + ' average annual rate)')}
+${field('Post-Injection Site Care (PISC):', ph('[X years minimum]') + ', anticipated completion ' + ph('[YYYY]'))}
+${blank()}${hr()}
+${h2('1.7&nbsp;&nbsp;Carbon Sequestration Tenure Agreement (CSTA)')}
+<p>The Applicant holds CSTA No. ${ph('[CSTA NUMBER]')} issued by the Government of Alberta, effective ${ph('[DATE]')}, covering all proposed well locations. A current executed copy is attached as Appendix ${ph('[X]')}.</p>
+${note('Approval No. 13513, Clause 11 — CSTA must be validated and maintained continuously. An expired or lapsed CSTA is an automatic deficiency.')}
+${hr()}
+${h2('1.8&nbsp;&nbsp;Mineral Rights &amp; Licensee Notification')}
+<p>${ph('[COMPANY LEGAL NAME]')} has confirmed Crown pore space rights under the CSTA above. Affected mineral rights owners and surface lessees within ${ph('[X km]')} have been notified per AER Directive 056.</p>
+${blank()}
+${pageBreak()}
+
+${h1('Section 2 &mdash; Geological Assessment')}
+${s2inc}
+${h2('2.1&nbsp;&nbsp;Regional Geological Setting')}
+<p>The project area is situated within the ${ph('[BASIN NAME, e.g., Western Canada Sedimentary Basin]')}, ${ph('[STRUCTURAL PROVINCE]')}. A regional stratigraphic column from Precambrian basement to surface is provided in Appendix ${ph('[X]')}.</p>
+${blank()}${hr()}
+${h2('2.2&nbsp;&nbsp;Injection Zone Characterization')}
+${field('Formation:', ph('[NAME]') + '&nbsp;&nbsp;Age: ' + ph('[period]') + '&nbsp;&nbsp;Lithology: ' + ph('[sandstone / carbonate]'))}
+${field('Gross thickness:', ph('[X m]') + '&nbsp;&nbsp;Net pay: ' + ph('[X m]') + '&nbsp;&nbsp;Net-to-gross: ' + ph('[X%]'))}
+${field('Depositional environment:', ph('[e.g., fluvial, deltaic, shallow marine]'))}
+${note('Well-log correlation panels across the AoR demonstrating formation continuity are required. Attach as Appendix [X].')}
+${blank()}${hr()}
+${h2('2.3&nbsp;&nbsp;Primary Caprock / Seal')}
+${field('Formation:', ph('[NAME]'))}
+${field('Thickness:', ph('[X m average, X m minimum across AoR]'))}
+${field('Lithology:', ph('[e.g., tight shale, anhydrite, halite]'))}
+${field('Capillary entry pressure:', ph('[X kPa]') + ' (from MICP data, Appendix ' + ph('[X]') + ')')}
+${field('Lateral continuity:', ph('[describe — any gaps, thinning, erosional truncations?]'))}
+${note('AER will scrutinize seal capacity closely. The CO\u2082 column height supportable by the caprock must exceed the buoyancy pressure of the CO\u2082 plume.')}
+${blank()}${hr()}
+${h2('2.4&nbsp;&nbsp;Structural Geology &amp; Fault Analysis')}
+${field('Structural style:', ph('[e.g., low-relief anticlinal closures, monoclinal dip]'))}
+${field('Known faults within AoR:', ph('[list fault names, orientations, throws, sealing capacity]'))}
+${field('Fault seal analysis method:', ph('[e.g., SGR, Mohr-Coulomb slip tendency analysis]'))}
+${note('Any faults within or bounding the AoR require detailed seal analysis. Assess reactivation potential under injection-induced pressure changes.')}
+${blank()}${hr()}
+${h2('2.5&nbsp;&nbsp;Hydrogeological Assessment')}
+${field('Base of Groundwater Protection (BGWP):', ph('[depth mKB]') + ' (' + ph('[formation name]') + ')')}
+${field('Depth to injection zone:', ph('[X m below BGWP — isolation confirmed]'))}
+${field('Regional flow direction:', ph('[direction and gradient]'))}
+${blank()}${hr()}
+${h2('2.6&nbsp;&nbsp;Geomechanical Assessment')}
+${field('Maximum horizontal stress (\u03c3H):', ph('[X kPa/m]') + '&nbsp;&nbsp;Azimuth: ' + ph('[degrees]'))}
+${field('Minimum horizontal stress (\u03c3h):', ph('[X kPa/m]'))}
+${field('Vertical stress (\u03c3v):', ph('[X kPa/m]'))}
+${field('Fracture gradient:', ph('[X kPa/m]') + '&nbsp;&nbsp;Max. injection pressure (90%): ' + ph('[X kPa]'))}
+${note('AER Directive 065 requires that maximum injection pressure does not exceed 90% of the minimum formation fracture pressure. Provide Mohr circle analysis.')}
+${blank()}
+${pageBreak()}
+
+${h1('Section 3 &mdash; Reservoir Characterization &amp; Simulation')}
+${s3inc}
+${h2('3.1&nbsp;&nbsp;Reservoir Properties')}
+${field('Porosity (core):', ph('[mean X%, range X&ndash;X%]') + '&nbsp;&nbsp;(log-derived): ' + ph('[mean X%]'))}
+${field('Permeability (core):', ph('[geometric mean X mD, range X&ndash;X mD]'))}
+${field('kv/kh ratio:', ph('[X — justify anisotropy assumption]'))}
+${blank()}${hr()}
+${h2('3.2&nbsp;&nbsp;Formation Fluid Properties')}
+${field('Initial reservoir pressure:', ph('[X kPa at X mKB datum]'))}
+${field('Reservoir temperature:', ph('[X \u00b0C at X mKB]'))}
+${field('Formation water TDS:', ph('[X mg/L — brackish / saline / brine]'))}
+${field('CO&#8322; density at reservoir conditions:', ph('[X kg/m\u00b3]') + '&nbsp;&nbsp;Viscosity: ' + ph('[X mPa\u00b7s]'))}
+${field('CO&#8322; solubility in brine:', ph('[X mol/kg at reservoir P/T]'))}
+${blank()}${hr()}
+${h2('3.3&nbsp;&nbsp;Multiphase Flow Properties')}
+<p>Relative permeability (CO&#8322;-brine drainage and imbibition) and capillary pressure curves derived from ${ph('[core flood experiments on native/analogue rock / justified literature sources]')}. Data in Appendix ${ph('[X]')}.</p>
+${field('Residual CO&#8322; saturation (Sgr):', ph('[X%]') + ' &mdash; used for residual trapping calculation')}
+${blank()}${hr()}
+${h2('3.4&nbsp;&nbsp;Numerical Simulation')}
+${field('Simulator:', ph('[e.g., CMG-GEM / ECLIPSE CO2STORE / TOUGH2]'))}
+${field('Grid dimensions:', ph('[X \u00d7 Y \u00d7 Z cells, cell size X m \u00d7 X m \u00d7 X m]'))}
+${field('Boundary conditions:', ph('[open / closed aquifer — describe]'))}
+${field('Simulation period:', ph('[X years injection + X years PISC]'))}
+${note('Base case results must include: CO\u2082 plume extent maps at end of injection and end of PISC, pressure distribution, and breakthrough risk. Sensitivity cases on permeability, caprock integrity, and injection rate are required.')}
+${blank()}${hr()}
+${h2('3.5&nbsp;&nbsp;Storage Capacity &amp; Trapping')}
+${field('Static volumetric (P10 / P50 / P90):', ph('[X Mt] | [X Mt] | [X Mt]'))}
+${field('Dynamic simulation-based:', ph('[X Mt CO&#8322;]') + ' over ' + ph('[X years]'))}
+${field('Storage efficiency (Eeff):', ph('[X%] &mdash; justify against published analogues'))}
+${field('Trapping at end of PISC:', 'Structural: ' + ph('[X%]') + '&nbsp; Residual: ' + ph('[X%]') + '&nbsp; Dissolution: ' + ph('[X%]') + '&nbsp; Mineral: ' + ph('[X%]'))}
+${blank()}
+${pageBreak()}
+
+${h1('Section 4 &mdash; Area of Review (AoR) &amp; Well Integrity')}
+${s4inc}
+${h2('4.1&nbsp;&nbsp;AoR Delineation Methodology')}
+<p>The AoR was delineated using ${ph('[pressure-based analytical / numerical simulation / combined]')} approach per AER Directive 065. The AoR is defined as the greater of: (1) modelled CO&#8322; plume extent plus ${ph('[X km]')} buffer, and (2) area where pressure increase exceeds ${ph('[X kPa]')} above initial conditions.</p>
+${field('AoR at end of injection:', ph('[X km\u00b2 / describe shape]'))}
+${field('AoR at end of PISC:', ph('[X km\u00b2]'))}
+${note('AoR maps at two time horizons (end-of-injection, end-of-PISC) are required. Attach as Appendix [X].')}
+${blank()}${hr()}
+${h2('4.2&nbsp;&nbsp;Well Inventory &amp; Integrity Assessment')}
+<p>Total of ${ph('[X]')} wells penetrate the injection zone and/or caprock within the AoR. Complete inventory in Appendix ${ph('[X]')}.</p>
+<table><tr><th>UWI</th><th>Status</th><th>Penetrates Seal?</th><th>Integrity Risk</th><th>Action Required</th></tr>
+<tr><td>${ph('[UWI]')}</td><td>${ph('[active/suspended/abandoned, year]')}</td><td>${ph('[Yes/No]')}</td><td>${ph('[High/Med/Low]')}</td><td>${ph('[describe action and timing]')}</td></tr>
+<tr><td>${ph('[UWI]')}</td><td>${ph('[active/suspended/abandoned, year]')}</td><td>${ph('[Yes/No]')}</td><td>${ph('[High/Med/Low]')}</td><td>${ph('[describe action and timing]')}</td></tr>
+<tr><td>${ph('[add rows as needed]')}</td><td></td><td></td><td></td><td></td></tr></table>
+${hr()}
+${h2('4.3&nbsp;&nbsp;Corrective Action Plan')}
+<p>All high- and medium-risk wells will be remediated prior to injection commencement:</p>
+<p>Well ${ph('[UWI]')}: ${ph('[e.g., squeeze cementing of caprock interval — Q[X] YYYY]')}</p>
+<p>Well ${ph('[UWI]')}: ${ph('[e.g., re-abandonment with CO\u2082-resistant cement — Q[X] YYYY]')}</p>
+${note('AER will not approve injection until all high-integrity-risk wells have documented corrective actions with confirmed timelines.')}
+${blank()}
+${pageBreak()}
+
+${h1('Section 5 &mdash; Injection Well Design &amp; Operations')}
+${s5inc}
+${h2('5.1&nbsp;&nbsp;Well Construction')}
+<p><strong>Surface casing:</strong> ${ph('[size in., grade, weight ppf, connection, set depth mKB]')}</p>
+<p><strong>Intermediate casing:</strong> ${ph('[size in., grade, weight ppf, set depth mKB — if applicable]')}</p>
+<p><strong>Injection casing:</strong> ${ph('[size in., grade e.g. 13Cr-110, weight ppf, set depth mKB]')}</p>
+<p><strong>Cement type:</strong> ${ph('[CO\u2082-resistant blend, e.g., Class G + silica flour + corrosion inhibitor]')}</p>
+<p><strong>TOC (planned):</strong> ${ph('[depth mKB — must cover caprock + X m above]')}&nbsp;&nbsp;<strong>Verification:</strong> ${ph('[CBL/VDL within X months of cementing]')}</p>
+${blank()}${hr()}
+${h2('5.2&nbsp;&nbsp;Injection Parameters')}
+${field('Max. injection rate:', ph('[X t/d CO&#8322;]'))}
+${field('Max. surface injection pressure:', ph('[X kPa]'))}
+${field('Max. bottomhole injection pressure:', ph('[X kPa]') + ' (' + ph('[X%]') + ' of fracture gradient at ' + ph('[X mKB]') + ')')}
+${field('Injection temperature at surface:', ph('[X \u00b0C range]'))}
+${field('Injectivity index:', ph('[X t/d/kPa from well test / simulation]'))}
+${blank()}${hr()}
+${h2('5.3&nbsp;&nbsp;Annular Monitoring &amp; Well Integrity During Operations')}
+<p>Continuous annular pressure monitoring on the ${ph('[casing-tubing / production-intermediate annulus]')}. Alarm threshold for sustained casing pressure (SCP): ${ph('[X kPa]')}. Response protocol: ${ph('[describe — shut-in, notification, investigation]')}. Data transmitted to SCADA in real-time.</p>
+${blank()}
+${pageBreak()}
+
+${h1('Section 6 &mdash; Risk Assessment')}
+${s6inc}
+${h2('6.1&nbsp;&nbsp;FEP Analysis')}
+<p>A systematic Features, Events, and Processes (FEP) analysis was conducted using the ${ph('[Quintessa CO\u2082 FEP database v2.X / TNO / custom framework]')}. A total of ${ph('[X]')} FEPs were identified; ${ph('[X]')} retained after documented screening. FEP register attached as Appendix ${ph('[X]')}.</p>
+${blank()}${hr()}
+${h2('6.2&nbsp;&nbsp;Risk Register')}
+<p>Risk register in Appendix ${ph('[X]')} — ${ph('[X]')} risks: Containment (${ph('[X]')}), Conformance (${ph('[X]')}), Operational (${ph('[X]')}), HSE (${ph('[X]')}).</p>
+<table><tr><th>Risk Description</th><th>Likelihood (1&ndash;5)</th><th>Consequence (1&ndash;5)</th><th>Rank</th><th>Key Control</th></tr>
+<tr><td>${ph('[e.g., CO\u2082 migration through caprock fracture]')}</td><td>${ph('[L]')}</td><td>${ph('[C]')}</td><td>${ph('[HIGH/MED/LOW]')}</td><td>${ph('[describe]')}</td></tr>
+<tr><td>${ph('[e.g., well integrity failure]')}</td><td>${ph('[L]')}</td><td>${ph('[C]')}</td><td>${ph('[HIGH/MED/LOW]')}</td><td>${ph('[describe]')}</td></tr>
+<tr><td>${ph('[e.g., induced seismicity above TLP]')}</td><td>${ph('[L]')}</td><td>${ph('[C]')}</td><td>${ph('[HIGH/MED/LOW]')}</td><td>${ph('[describe]')}</td></tr></table>
+${hr()}
+${h2('6.3&nbsp;&nbsp;Induced Seismicity &amp; Traffic Light Protocol (TLP)')}
+<p>Baseline seismicity within ${ph('[X km]')}: ${ph('[X events/year, max Mw X over past X years]')} based on ${ph('[data source]')}. TLP per AER Subsurface Order No. 2:</p>
+${field('<span style="color:green">GREEN (proceed normally):</span>', ph('[Mw &lt; X.X]'))}
+${field('<span style="color:#e67e22">YELLOW (reduce rate X%):</span>', ph('[X.X \u2264 Mw &lt; X.X — notify AER within 24h]'))}
+${field('<span style="color:red">RED (immediate shut-in):</span>', ph('[Mw \u2265 X.X — notify AER immediately]'))}
+${blank()}
+${pageBreak()}
+
+${h1('Section 7 &mdash; Measurement, Monitoring &amp; Verification (MMV)')}
+${s7inc}
+${h2('7.1&nbsp;&nbsp;MMV Philosophy &amp; Phasing')}
+<p>${ph('[COMPANY LEGAL NAME]')}&rsquo;s MMV program follows risk-based, adaptive management principles with three phases: (1) Pre-injection baseline (${ph('[X months]')}), (2) Operational monitoring (injection + ${ph('[X years post-injection]')}), and (3) PISC monitoring (${ph('[X years, with adaptive reduction]')}).</p>
+${blank()}${hr()}
+${h2('7.2&nbsp;&nbsp;Baseline Program (Pre-Injection)')}
+${field('Duration:', ph('[minimum 12 months]'))}
+${field('Groundwater sampling:', ph('[X wells, quarterly, parameters: pH, TDS, major ions, dissolved gases]'))}
+${field('Soil gas baseline:', ph('[X surface locations, biannual CO\u2082/CH\u2084 flux]'))}
+${field('Formation pressure:', ph('[continuous gauge in X observation well(s)]'))}
+${field('Seismic baseline:', ph('[2D/3D baseline survey — timing and acquisition parameters]'))}
+${note('Inadequate baseline data is one of the most common SIR triggers. Collect enough data points to characterize natural variability. This is what AER will compare operational data against.')}
+${blank()}${hr()}
+${h2('7.3&nbsp;&nbsp;Operational Monitoring')}
+${field('Wellhead (continuous):', ph('[injection rate, surface P/T — SCADA 1-min interval]'))}
+${field('Downhole gauges:', ph('[permanent gauge at X mKB — P/T, monthly download]'))}
+${field('Observation wells:', ph('[X wells — formation pressure monthly, above-zone semi-annually]'))}
+${field('Groundwater:', ph('[X monitoring wells, semi-annual sampling]'))}
+${field('Soil gas:', ph('[seasonal surveys — anomaly threshold: CO\u2082 flux &gt; X g/m\u00b2/d]'))}
+${field('Time-lapse seismic:', ph('[4D survey every X years for conformance]'))}
+${field('Hall Plot analysis:', ph('[annual — included in Annual MMV Report per standard approval conditions]'))}
+${blank()}${hr()}
+${h2('7.4&nbsp;&nbsp;Post-Injection &amp; PISC Monitoring')}
+<p>Following injection cessation, monitoring continues at reduced frequency for minimum ${ph('[X years]')}. Frequency reduction criteria: (1) pressure stabilization within ${ph('[X kPa]')} of model prediction, (2) plume within ${ph('[X%]')} of P50 simulation, (3) no anomalies in groundwater or soil gas for ${ph('[X consecutive monitoring cycles]')}.</p>
+${blank()}
+${pageBreak()}
+
+${h1('Section 8 &mdash; Public Consultation &amp; Stakeholder Engagement')}
+${s8inc}
+${h2('8.1&nbsp;&nbsp;Participant Involvement Program (D056)')}
+<p>${ph('[COMPANY LEGAL NAME]')} conducted a Participant Involvement Program (PIP) per AER Directive 056. Notification letters sent to ${ph('[X]')} directly affected parties within ${ph('[X km]')} radius. Consultation summary in Appendix ${ph('[X]')}.</p>
+${field('Notification date(s):', ph('[YYYY-MM-DD]'))}
+${field('Response deadline:', ph('[YYYY-MM-DD (28-day minimum)]'))}
+${field('Concerns raised:', ph('[X concerns — summarize by category: groundwater, seismicity, surface disturbance]'))}
+${field('Resolution:', ph('[describe how each concern was addressed or remains under discussion]'))}
+${blank()}${hr()}
+${h2('8.2&nbsp;&nbsp;Indigenous Consultation')}
+<p>Crown consultation with ${ph('[First Nation / M\u00e9tis Settlement names]')} was conducted by ${ph('[proponent / Alberta Crown / jointly]')} commencing ${ph('[date]')}. Consultation record in Appendix ${ph('[X]')}.</p>
+${blank()}
+${pageBreak()}
+
+${h1('Section 9 &mdash; Emergency Response Plan (ERP)')}
+${s9inc}
+${h2('9.1&nbsp;&nbsp;Emergency Planning Zone (EPZ)')}
+<p>EPZ calculated per AER Directive 071 using ${ph('[PHAST / SAFETI / other dispersion model]')}. Worst-case release: ${ph('[full-bore tubing failure, X t/d CO\u2082]')}. EPZ radius: ${ph('[X m]')}. ${ph('[X]')} residents and ${ph('[X]')} structures within EPZ. Dispersion modelling report in Appendix ${ph('[X]')}.</p>
+${blank()}${hr()}
+${h2('9.2&nbsp;&nbsp;Response Procedures &amp; Notification')}
+${field('Incident detection:', ph('[automated SCADA alarm / wellsite personnel / public report]'))}
+${field('Initial assessment:', ph('[wellsite supervisor within X minutes, categorize Tier 1/2/3]'))}
+${field('AER emergency line:', '1-800-222-6514 &mdash; notify within ' + ph('[X hours]') + ' of confirmed incident')}
+${field('Local authority:', ph('[municipal/county emergency line — notify within X hours]'))}
+${note('Decision trees for each emergency scenario must be attached as appendices. Test the ERP annually with a tabletop exercise.')}
+${blank()}
+${pageBreak()}
+
+${h1('Section 10 &mdash; Financial Assurance &amp; Liability')}
+${s10inc}
+${h2('10.1&nbsp;&nbsp;Closure Cost Estimate')}
+<table><tr><th>Item</th><th>Estimated Cost</th></tr>
+<tr><td>Well abandonment (${ph('[X]')} wells)</td><td>$${ph('[X,XXX,XXX]')}</td></tr>
+<tr><td>Facility decommissioning</td><td>$${ph('[X,XXX,XXX]')}</td></tr>
+<tr><td>Surface reclamation</td><td>$${ph('[X,XXX,XXX]')}</td></tr>
+<tr><td>Post-closure monitoring (${ph('[X]')} years)</td><td>$${ph('[X,XXX,XXX]')}</td></tr>
+<tr><td>Contingency (${ph('[X%]')})</td><td>$${ph('[X,XXX,XXX]')}</td></tr>
+<tr><td><strong>TOTAL</strong></td><td><strong>$${ph('[XX,XXX,XXX]')}</strong></td></tr></table>
+${note('Use current AER cost benchmarks. Contingency should be 15-25% of direct costs. Financial security must cover the full total.')}
+${hr()}
+${h2('10.2&nbsp;&nbsp;Financial Security &amp; LMR')}
+${field('Security instrument:', ph('[irrevocable letter of credit / surety bond / cash deposit]'))}
+${field('Issuing institution:', ph('[bank/surety company name, credit rating]'))}
+${field('Amount secured:', '$' + ph('[XX,XXX,XXX]') + ' &mdash; equal to full closure cost estimate')}
+${field('LMR status:', ph('[current ratio X.XX — confirm \u22651.0 at time of application]'))}
+${blank()}
+${pageBreak()}
+
+${h1('Section 11 &mdash; Closure &amp; Post-Injection Site Care (PISC)')}
+${s11inc}
+${h2('11.1&nbsp;&nbsp;Well Abandonment Plan')}
+<p>All injection and monitoring wells abandoned per AER Directive 020 using CO&#8322;-resistant cement:</p>
+<p>Injection well(s) ${ph('[UWI]')}: ${ph('[abandonment procedure, timing]')}</p>
+<p>Monitoring well(s) ${ph('[UWI]')}: ${ph('[defer abandonment until PISC monitoring obligations fulfilled]')}</p>
+${note('CO\u2082-resistant cement is mandatory for all plugs across the injection zone and caprock intervals. Pressure-test each plug before proceeding.')}
+${blank()}${hr()}
+${h2('11.2&nbsp;&nbsp;Closure Criteria')}
+<p>Site closure and liability transfer to the Crown initiated when all of the following criteria are met:</p>
+<ol style="margin:6px 0 6px 20px">
+<li>Reservoir pressure stabilized within ${ph('[X kPa]')} of pre-injection levels for ${ph('[X]')} consecutive annual readings.</li>
+<li>CO&#8322; plume extent within ${ph('[X%]')} of P50 simulation and showing no unexpected expansion.</li>
+<li>No anomalies in groundwater, soil gas, or above-zone pressure for ${ph('[X years]')}.</li>
+<li>All wells abandoned per D020 with confirmed cement integrity.</li>
+<li>Surface reclamation certified by a qualified professional.</li>
+</ol>
+${blank()}
+${pageBreak()}
+
+${h1('Section 12 &mdash; Environmental Assessment')}
+${s12inc}
+${h2('12.1&nbsp;&nbsp;Environmental Impact Assessment')}
+<p>A ${ph('[Detailed / Screening-level]')} environmental impact assessment was completed by ${ph('[COMPANY NAME, qualified professional name, P.Eng./P.Geo.]')} in ${ph('[YYYY-MM]')}. Assessment covered: surface disturbance (${ph('[X ha]')}), vegetation clearing, wildlife and habitat, wetlands, and historical resources. ${ph('[Copy provided as Appendix X / EPEA approval not required because [reason]]')}.</p>
+${blank()}${hr()}
+${h2('12.2&nbsp;&nbsp;GHG Accounting &amp; Net Storage Quantification')}
+${field('Total CO&#8322; injected (design):', ph('[X Mt over X years]'))}
+${field('Operational GHG emissions:', ph('[X kt CO&#8322;e/yr — capture, compression, transport, injection]'))}
+${field('Net CO&#8322; permanently stored:', ph('[X Mt CO&#8322;e — per Alberta TIER / federal OBPS protocol]'))}
+${note('Quantification protocol for carbon credits must comply with the Alberta Quantification Protocol for CO\u2082 Capture and Geological Storage or the applicable federal equivalent. Engage a verification body early.')}
+${blank()}
+${pageBreak()}
+
+${h1('Submission Package Checklist')}
+${s13inc}
+<p>The following items are included in this application submitted via AER OneStop (account: ${ph('[ONESTOP ACCOUNT ID]')}):</p>
+<table><tr><th>Item</th><th>Description</th><th>Included?</th></tr>
+<tr><td>Cover letter</td><td>Signed by authorized representative of ${ph('[COMPANY LEGAL NAME]')}</td><td>${ph('[ ]')}</td></tr>
+<tr><td>This application document</td><td>All 12 sections complete with supporting data</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix A</td><td>Well location maps (surface and bottom-hole) &mdash; NAD83</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix B</td><td>CO&#8322; stream compositional analysis &mdash; laboratory certificate</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix C</td><td>Geological cross-sections and well-log correlation panels</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix D</td><td>Reservoir simulation report (base case + sensitivities)</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix E</td><td>AoR maps (end of injection and end of PISC)</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix F</td><td>Well integrity assessment &mdash; complete inventory table</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix G</td><td>Wellbore schematic and casing/cement program</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix H</td><td>FEP analysis and risk register</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix I</td><td>MMV plan &mdash; detailed monitoring protocols</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix J</td><td>Consultation record (D056 PIP, Indigenous engagement)</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix K</td><td>Emergency Response Plan with decision trees</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix L</td><td>Closure cost estimate (itemized)</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix M</td><td>CSTA &mdash; current executed copy</td><td>${ph('[ ]')}</td></tr>
+<tr><td>Appendix N</td><td>Digital data package (GIS files, simulation decks, well logs)</td><td>${ph('[ ]')}</td></tr></table>
+<br>
+${field('OneStop fees paid:', ph('[confirmation number]') + '&nbsp;&nbsp;&nbsp;Date: ' + ph('[YYYY-MM-DD]'))}
+${field('Petrinex CO&#8322; injection scheme code prepared:', ph('[CO2/N_A/INJ/CARBON SEQU]'))}
+<br><br>
+<p style="font-style:italic;color:#555;font-size:10pt">I certify that the information contained in this application is accurate and complete to the best of my knowledge.</p>
+${field('Authorized Signatory:', ph('[NAME, TITLE]') + '&nbsp;&nbsp;&nbsp;Date: ' + ph('[YYYY-MM-DD]'))}
+<p><strong>Signature:</strong>&nbsp;&nbsp;_______________________________________________</p>
+</body></html>`;
+
+    const blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'D065_CO2_Storage_Application_Template.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+  btn.classList.remove('dl-generating');
+  btn.querySelector('strong').textContent = 'Download Word Template (.doc)';
+}
+
+
+// ========== PDF SAMPLE GENERATOR ==========
+function generatePDFSample() {
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>D065 CO2 Storage Application — Completed Example</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,sans-serif;font-size:11pt;color:#111;background:#fff;padding:40px;max-width:860px;margin:0 auto;line-height:1.55}
+  h1{font-size:16pt;color:#0a1628;border-bottom:2.5px solid #0077b6;padding-bottom:6px;margin:32px 0 10px}
+  h2{font-size:12.5pt;color:#0077b6;margin:22px 0 6px}
+  h3{font-size:11pt;color:#333;margin:14px 0 4px}
+  p{margin-bottom:8px;font-size:10.5pt}
+  .cover{text-align:center;padding:60px 0 40px;border-bottom:2px solid #ddd;margin-bottom:40px}
+  .cover h1{font-size:22pt;border:none;margin-bottom:6px;color:#0a1628}
+  .cover .sub{font-size:13pt;color:#0077b6;margin-bottom:30px}
+  .cover .meta{font-size:10.5pt;line-height:2;color:#333;text-align:left;display:inline-block}
+  .cover .meta strong{display:inline-block;min-width:200px}
+  .note{background:#f0f7ff;border-left:3px solid #0077b6;padding:8px 12px;font-size:9.5pt;color:#333;margin:10px 0;border-radius:0 4px 4px 0}
+  .field{color:#0a5c8a;font-weight:600}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:10pt}
+  th{background:#0077b6;color:#fff;padding:6px 10px;text-align:left}
+  td{padding:5px 10px;border-bottom:1px solid #ddd}
+  tr:nth-child(even) td{background:#f8f9fa}
+  .risk-high{color:#c0392b;font-weight:700}
+  .risk-med{color:#e67e22;font-weight:700}
+  .risk-low{color:#27ae60;font-weight:700}
+  @media print{body{padding:0}.cover{page-break-after:always}h1{page-break-before:always}h1:first-of-type{page-break-before:avoid}}
+</style></head><body>
+<div class="cover">
+  <div style="font-size:9pt;color:#888;margin-bottom:20px">EXAMPLE / REFERENCE DOCUMENT — SubsurfaceAI D065 Assistant</div>
+  <h1>APPLICATION FOR APPROVAL<br>CO&#8322; Storage Scheme</h1>
+  <div class="sub">Pursuant to AER Directive 065</div>
+  <div class="meta">
+    <p><strong>Operator:</strong> <span class="field">PetraNova Carbon Capture Ltd.</span></p>
+    <p><strong>Project Name:</strong> <span class="field">Clearwater Deep Saline Aquifer CO&#8322; Storage Project</span></p>
+    <p><strong>Target Formation:</strong> <span class="field">Cambrian Basal Sandstone Unit (BSU), Deadwood Formation</span></p>
+    <p><strong>Location:</strong> <span class="field">05-12-062-06W5M, Birch Hills County, Alberta</span></p>
+    <p><strong>AER BA Code:</strong> <span class="field">0PCNV</span></p>
+    <p><strong>Application Date:</strong> <span class="field">2025-09-15</span></p>
+    <p><strong>Contact:</strong> <span class="field">Dr. Sarah Okonkwo, P.Geo. | sokonkwo@petranova.ca | 403-555-0142</span></p>
+  </div>
+</div>
+
+<h1>Section 1 — General Information &amp; Scheme Description</h1>
+<h2>1.1 Applicant Details</h2>
+<p>PetraNova Carbon Capture Ltd. ("the Applicant"), a corporation incorporated under the Business Corporations Act (Alberta), hereby applies for approval of a Class IV CO&#8322; storage scheme pursuant to AER Directive 065. AER BA Code: <span class="field">0PCNV</span>. Contact: Dr. Sarah Okonkwo, Manager — CCS Projects, 403-555-0142, sokonkwo@petranova.ca, Suite 2200, 335 8 Ave SW, Calgary, AB T2P 1C9.</p>
+<h2>1.2 Scheme Type &amp; Purpose</h2>
+<p>This is a <strong>new</strong> Class IV CO&#8322; geological storage scheme for permanent sequestration of anthropogenic CO&#8322; captured from the Strathmore Natural Gas Processing Plant (BA Code 0SNGP) located 22 km northwest of the injection well via a dedicated 16-inch pipeline. Target: 500,000 t CO&#8322;/year over a 25-year injection period (12.5 Mt total).</p>
+<h2>1.3 Well Location</h2>
+<p><strong>Injection Well (05-12-062-06W5M):</strong> Surface NAD83: 54.3821°N, 114.9763°W. Bottom-hole (vertical well): 05-12-062-06W5M at 3,247 mKB. <strong>Monitoring Well (07-12-062-06W5M):</strong> 1.8 km northeast, TD 3,300 mKB.</p>
+<h2>1.4 Target Formation</h2>
+<p><strong>Deadwood Formation — Basal Sandstone Unit (BSU):</strong> Top 3,178 mKB / 3,162 mTVD; Base 3,247 mKB / 3,231 mTVD. Gross thickness: 69 m; Net pay: 52 m (net-to-gross 75%).</p>
+<h2>1.5 CO&#8322; Stream Composition</h2>
+<table><tr><th>Component</th><th>Concentration</th><th>Notes</th></tr>
+<tr><td>CO&#8322;</td><td>99.2 mol%</td><td>Post-amine capture, dehydrated</td></tr>
+<tr><td>N&#8322;</td><td>0.6 mol%</td><td>Below corrosion-concern threshold</td></tr>
+<tr><td>CH&#8324;</td><td>0.15 mol%</td><td>Residual from stripping</td></tr>
+<tr><td>H&#8322;O</td><td>&lt;50 ppm</td><td>Dehydrated to TEG spec</td></tr>
+<tr><td>H&#8322;S</td><td>&lt;1 ppm</td><td>Negligible — pure CO&#8322; ERP applicable</td></tr></table>
+<h2>1.6 Project Timeline</h2>
+<p>Injection start: Q1 2027. Injection duration: 25 years (2027–2052). Annual injection rate: 500 kt CO&#8322;/yr (ramp-up to full rate by Q3 2027). Post-injection site care (PISC): minimum 25 years (2052–2077). Anticipated liability transfer application: 2077 or upon satisfaction of closure criteria.</p>
+<h2>1.7 CSTA &amp; Tenure</h2>
+<p>The Applicant holds CSTA No. CST-2024-0147 issued 2024-03-01 by the Minister of Energy, covering all proposed well locations within Township 62, Range 6, W5M. Current and validated copy attached as Appendix M. CSTA maintenance obligation acknowledged — annual renewal confirmed in financial plan.</p>
+
+<h1>Section 2 — Geological Assessment</h1>
+<h2>2.1 Regional Geological Setting</h2>
+<p>The project area lies within the Alberta Platform of the Western Canada Sedimentary Basin (WCSB), characterized by a westward-thickening wedge of Phanerozoic sedimentary rocks overlying Precambrian basement. The Birch Hills area exhibits low structural relief (~2 m/km eastward dip) with no major mapped faults within 15 km of the proposed injection well. The Cambrian Deadwood Formation is a regionally extensive basal clastic unit unconformably overlying Precambrian granite, overlain by the Prairie Evaporite Group (Devonian) which constitutes the primary seal.</p>
+<h2>2.2 Injection Zone — Deadwood BSU</h2>
+<p>The Basal Sandstone Unit (BSU) of the Deadwood Formation is a fluvial-eolian sandstone with excellent reservoir quality: average porosity 18.2% (core), 17.6% (log-derived); geometric mean permeability 85 mD (core); kv/kh = 0.3. The BSU is laterally continuous across the 25 km&#178; AoR with &lt;5% thickness variation. Structural maps and well-log correlation panel attached as Appendix C.</p>
+<h2>2.3 Primary Seal — Prairie Evaporite (Devonian Elk Point Group)</h2>
+<p>The overlying Prairie Evaporite (halite + anhydrite, average 140 m thick, minimum 115 m across AoR) provides an exceptionally competent primary seal. Capillary entry pressure &gt;30 MPa (MICP data, Appendix B-3) — supports a CO&#8322; column &gt;3,000 m, far exceeding the 69 m injection interval. Lateral continuity confirmed on 3D seismic — no dissolution features or thinning within AoR.</p>
+<h2>2.4 Geomechanical Assessment</h2>
+<p>In-situ stress from DST and LOT data: &#963;H = 25.8 kPa/m (azimuth 047&#176;), &#963;h = 21.3 kPa/m, &#963;v = 24.1 kPa/m. Fracture gradient: 23.6 kPa/m at 3,200 mKB. Maximum injection pressure (90%): <strong>75,500 kPa</strong> at reservoir mid-point. Stress regime: strike-slip. No fault reactivation risk identified within AoR (no mapped faults; nearest fault 18 km distant).</p>
+
+<h1>Section 3 — Reservoir Characterization &amp; Simulation</h1>
+<h2>3.1 Storage Capacity</h2>
+<p>Static volumetric estimate (Meff = A&#215;h&#215;&#966;&#215;&#961;CO&#8322;&#215;E&#160;=&#160;25&#160;km&#178;&#215;52&#160;m&#215;0.182&#215;650&#160;kg/m&#179;&#215;0.04): <strong>P10: 8.2 Mt | P50: 12.5 Mt | P90: 18.4 Mt</strong> (storage efficiency E = 2–6%). Design injection of 12.5 Mt falls comfortably within P50 capacity.</p>
+<h2>3.2 Numerical Simulation</h2>
+<p>CMG-GEM v2024.1 compositional simulator, 200&#215;200&#215;10 m grid (62,500 cells), open aquifer boundary at 50 km radius. Base case: 500 kt/yr for 25 years, then 25-year PISC. Results: CO&#8322; plume confined to BSU at all times; pressure front remains within 8.2 km radius AoR; no seal integrity exceedance; 94% of CO&#8322; in structural+residual trapping by 2077.</p>
+<div class="note"><strong>Sensitivity analysis:</strong> &#215;10 permeability reduction — pressure 12% higher, plume 8% smaller. &#215;2 permeability increase — plume 15% larger, still within AoR. Caprock permeability &#215;10 increase — CO&#8322; flux through caprock &lt;0.001% of total stored volume over 1,000 years.</div>
+
+<h1>Section 4 — Area of Review &amp; Well Integrity</h1>
+<h2>4.1 AoR Delineation</h2>
+<p>AoR delineated using combined plume-based (CMG simulation) and pressure-based (analytical Theis solution) approach. AoR at end of injection: 18.7 km&#178;. AoR at end of PISC: 22.3 km&#178; (pressure dissipation extends further than plume). Maps attached as Appendix E.</p>
+<h2>4.2 Well Inventory Summary</h2>
+<table><tr><th>Well UWI</th><th>Status</th><th>Penetrates Seal?</th><th>Integrity Risk</th><th>Action</th></tr>
+<tr><td>01-08-062-06W5M</td><td>Abandoned 1978</td><td>Yes (CBL available)</td><td class="risk-med">Medium</td><td>Squeeze cement across Prairie Evaporite — Q2 2026</td></tr>
+<tr><td>06-14-062-06W5M</td><td>Abandoned 2011</td><td>Yes (CBL good bond)</td><td class="risk-low">Low</td><td>Monitor — no action required</td></tr>
+<tr><td>10-05-062-06W5M</td><td>Suspended producer</td><td>No (TD = 2,100 m)</td><td class="risk-low">Low</td><td>No action required</td></tr></table>
+
+<h1>Section 5 — Injection Well Design &amp; Operations</h1>
+<h2>5.1 Well Construction Summary</h2>
+<p><strong>Surface casing:</strong> 339.7 mm, K-55, 68.9 kg/m, BTC, set at 450 mKB. Cemented to surface with Class G + 35% silica flour. <strong>Production casing:</strong> 177.8 mm, 13Cr-110, 34.2 kg/m, PH-6 premium connection, set at 3,251 mKB. CO&#8322;-resistant cement (Class G + silica flour + chromium inhibitor), TOC 2,800 mKB (448 m above top of Prairie Evaporite). CBL/VDL within 3 months of cementing, minimum 80% bond index across seal interval.</p>
+<h2>5.2 Injection Parameters</h2>
+<p>Maximum injection rate: <strong>1,370 t/d</strong> (500 kt/yr). Maximum surface injection pressure: <strong>48,000 kPa</strong>. Maximum BHIP: <strong>75,500 kPa</strong> (90% of fracture gradient). Injection temperature at wellhead: +5 to +35&#176;C. Injectivity index from analytical estimate: 18.5 t/d/kPa — confirmed by planned short-duration injectivity test before first injection permit application.</p>
+
+<h1>Section 6 — Risk Assessment</h1>
+<h2>6.1 Top Risks (Risk Register — Appendix H)</h2>
+<table><tr><th>Risk</th><th>Likelihood</th><th>Consequence</th><th>Rank</th><th>Key Control</th></tr>
+<tr><td>Well integrity failure — 1978 abandoned well</td><td>2</td><td>4</td><td class="risk-med">Medium (8)</td><td>Pre-injection squeeze cement; post-remediation CBL verification</td></tr>
+<tr><td>Induced seismicity &gt; Mw 2.0</td><td>1</td><td>3</td><td class="risk-low">Low (3)</td><td>TLP monitoring; 15 km distance from nearest mapped fault</td></tr>
+<tr><td>CO&#8322; plume exceeds AoR prediction</td><td>1</td><td>3</td><td class="risk-low">Low (3)</td><td>Conservative AoR + time-lapse seismic conformance monitoring</td></tr>
+<tr><td>Prairie Evaporite dissolution / seal compromise</td><td>1</td><td>5</td><td class="risk-med">Medium (5)</td><td>3D seismic confirms no dissolution features; capillary entry pressure far exceeds plume buoyancy</td></tr></table>
+<h2>6.2 Traffic Light Protocol (TLP)</h2>
+<p><strong>GREEN</strong> (proceed): Mw &lt; 2.0 | <strong>YELLOW</strong> (reduce injection rate 50%): 2.0 &#8804; Mw &lt; 3.0, notify AER within 24h | <strong>RED</strong> (immediate shut-in): Mw &#8805; 3.0, notify AER immediately per AER Subsurface Order No. 2</p>
+
+<h1>Section 7 — MMV Plan Summary</h1>
+<h2>7.1 Baseline (18 months pre-injection: Jul 2025 – Dec 2026)</h2>
+<p>Groundwater: 4 domestic wells + 1 dedicated monitoring well, quarterly sampling. Soil gas: 12 surface locations, biannual CO&#8322;/CH&#8324; flux. Formation pressure: continuous gauge in monitoring well 07-12-062-06W5M. 3D seismic baseline: Q3 2025 acquisition (150 km&#178; survey).</p>
+<h2>7.2 Operational Monitoring (2027–2052)</h2>
+<p>Wellhead P/T/Q: continuous, SCADA 1-min interval. Downhole gauge (permanent): 3,200 mKB, monthly download. Observation well: formation pressure monthly, above-zone interval (Ireton Shale) semi-annually. Groundwater: semi-annual sampling. 4D seismic: every 3 years for conformance. Hall plot analysis: annual, included in Annual MMV Report per standard approval conditions.</p>
+
+<h1>Section 8 — Public Consultation</h1>
+<p>PIP conducted per AER Directive 056. Notification sent to 14 directly affected parties within 3 km on 2024-08-01 (28-day response period). Two open-house sessions held (Sept 4 and Oct 2, 2024) — 31 attendees. Concerns raised: groundwater (8), induced seismicity (4), surface disturbance (2). All concerns documented with responses in Appendix J. No unresolved objections. Crown consultation with Bigstone Cree Nation initiated 2024-06-15, concluded 2024-11-30 with no outstanding concerns.</p>
+
+<h1>Section 9 — Emergency Response Plan</h1>
+<p>EPZ: 250 m radius (pure CO&#8322;, Pasquill-Gifford dispersion model, worst-case: full-bore tubing failure at 1,370 t/d, F-stability). 0 residents within EPZ; 2 surface leases within outer 500 m notification zone — both notified and on emergency contact list. AER emergency line: 1-800-222-6514. Annual tabletop exercise scheduled April of each injection year. ERP decision trees attached as Appendix K.</p>
+
+<h1>Section 10 — Financial Assurance</h1>
+<table><tr><th>Item</th><th>Cost Estimate</th></tr>
+<tr><td>Well abandonment (2 wells)</td><td>$1,850,000</td></tr>
+<tr><td>Facility decommissioning</td><td>$620,000</td></tr>
+<tr><td>Surface reclamation</td><td>$280,000</td></tr>
+<tr><td>Post-closure monitoring (25 years)</td><td>$3,750,000</td></tr>
+<tr><td>Contingency (20%)</td><td>$1,300,000</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>$7,800,000</strong></td></tr></table>
+<p>Security instrument: Irrevocable Letter of Credit, ATB Financial, rated AA-, $7,800,000, annual renewal mechanism in place. Current LMR: 2.14 (compliant). Financial security in place before injection commencement.</p>
+
+<h1>Section 11 — Closure &amp; PISC</h1>
+<p>Well abandonment per AER Directive 020 using CO&#8322;-resistant Class G + 40% silica flour cement. Monitoring well 07-12-062-06W5M to remain active throughout PISC. Injection well to be abandoned Q2 2053 following cessation of injection. Closure criteria: (1) pressure within 500 kPa of pre-injection baseline for 5 consecutive annual readings; (2) plume within P50 simulation; (3) no groundwater anomalies for 3 years; (4) all wells abandoned; (5) surface reclamation certified. Anticipated liability transfer application to Crown: 2077.</p>
+
+<h1>Section 12 — Environmental Assessment</h1>
+<p>Environmental screening assessment completed by EnviroNorth Consulting Ltd. (Dr. R. Leblanc, P.Biol., 2025-01-15). Surface disturbance: 2.1 ha (well pad + access road). No designated wetlands or Class A wildlife habitat within 500 m. Historical resources clearance issued by Alberta Culture (Clearance No. HRC-2024-1847). EPEA approval not required (project below threshold per Water Act review). GHG net storage: 12.5 Mt CO&#8322; stored minus 0.8 Mt CO&#8322;e operational emissions = <strong>11.7 Mt net sequestered</strong>, to be quantified per Alberta Quantification Protocol for CO&#8322; Capture and Geological Storage.</p>
+
+<div style="margin-top:40px;padding-top:20px;border-top:1px solid #ddd;font-size:9pt;color:#888;text-align:center">
+  <p>This is a <strong>completed example document</strong> generated by the SubsurfaceAI D065 Application Assistant for reference purposes only.</p>
+  <p>All company names, well UWIs, and project data are fictional and for illustrative purposes. Not for submission to AER.</p>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 800);
+}
+
+// ========== SAVE / LOAD / PDF ==========
+function saveProgress() {
+  const ts = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  localStorage.setItem('aer_d065_ts', ts);
+  document.getElementById('saveStatus').textContent = '\u2713 Saved ' + ts;
+}
+
+function loadProgress() {
+  const saved = localStorage.getItem('aer_d065_checklist');
+  if (!saved) return;
+  const state = JSON.parse(saved);
+  Object.keys(state).forEach(id => {
+    const cb = document.getElementById(id);
+    if (cb) cb.checked = state[id];
+  });
+  const ts = localStorage.getItem('aer_d065_ts');
+  if (ts) document.getElementById('saveStatus').textContent = 'Last saved ' + ts;
+}
+
+function clearProgress() {
+  if (!confirm('Clear all checked items and saved progress?')) return;
+  document.querySelectorAll('#checklistContent input[type="checkbox"]').forEach(b => b.checked = false);
+  localStorage.removeItem('aer_d065_checklist');
+  localStorage.removeItem('aer_d065_ts');
+  document.getElementById('saveStatus').textContent = 'Progress cleared';
+  updateProgress();
+}
+
+function downloadPDF() {
+  const panel = document.getElementById('checklist');
+  const wasActive = panel.classList.contains('active');
+  if (!wasActive) panel.classList.add('active');
+  window.print();
+  if (!wasActive) panel.classList.remove('active');
+}
+
+// init: load saved state then compute progress
+loadProgress();
+updateProgress();
+</script>
+</body>
+</html>

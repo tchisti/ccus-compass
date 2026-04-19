@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canadian CCS Regulatory Guide — by Tahir Chisti, P.Eng, MAsc.</title>
+<meta name="description" content="Comprehensive interactive guide to Carbon Capture and Storage (CCS) regulations across Alberta, Saskatchewan, British Columbia, and Ontario. Provincial and Federal regulatory requirements for CO₂ Capture, Pipeline Transportation, and Sequestration in Saline Aquifers.">
+<meta name="author" content="Tahir Chisti, P.Eng, MAsc.">
+<meta name="keywords" content="CCS, CCUS, Carbon Capture Storage, Alberta, Saskatchewan, British Columbia, Ontario, Canada, regulations, CO2, sequestration, saline aquifer, pipeline, AER, BCER, TIER, CCUS ITC">
+<meta property="og:title" content="Canadian CCS Regulatory Guide — Tahir Chisti, P.Eng, MAsc.">
+<meta property="og:description" content="Complete regulatory reference for CCS operators and engineers across 4 Canadian provinces. 115+ regulations catalogued with direct links to official sources.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;0,8..60,800;0,8..60,900;1,8..60,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+/* Apply theme before CSS renders to avoid flash */
+(function(){var t=localStorage.getItem('ccus-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<script src="ccus-nav.js" defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* Light geological theme (default for this page) */
+:root{
+  --bg:#F7F8FA;--surface:#FFFFFF;--border:#E2E5EA;--text:#1A1D23;--text2:#4A5060;--text3:#8490A0;
+  --capture:#0C7C6B;--capture-light:#E6F7F4;
+  --pipeline:#1A56C7;--pipeline-light:#E5EEFF;
+  --sequest:#7C33CC;--sequest-light:#F2E8FF;
+  --ab:#047857;--sk:#B45309;--bc:#1D4ED8;--on:#6D28D9;
+  --serif:'Source Serif 4',Georgia,serif;--sans:'Outfit',system-ui,sans-serif;
+  --radius:10px;--shadow:0 1px 3px rgba(0,0,0,.06);
+}
+/* Dark mode overrides */
+html[data-theme="dark"]{
+  --bg:#0f1219;--surface:#141c24;--border:#253040;--text:#e2e8f0;--text2:#90a0b8;--text3:#607080;
+  --capture:#0a9080;--capture-light:rgba(10,144,128,.12);
+  --pipeline:#2060d8;--pipeline-light:rgba(32,96,216,.12);
+  --sequest:#8840d8;--sequest-light:rgba(136,64,216,.12);
+  --ab:#10a870;--sk:#d08020;--bc:#3060e8;--on:#8848e8;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--sans);cursor:pointer}
+
+/* HERO */
+.hero{background:linear-gradient(145deg,#0B1120 0%,#162032 40%,#1C3048 100%);padding:44px 20px 36px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-80px;right:-60px;width:380px;height:380px;background:radial-gradient(circle,rgba(12,124,107,.15) 0%,transparent 70%);pointer-events:none}
+.hero-inner{max-width:980px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:16px}
+.hero-badge svg{width:14px;height:14px;fill:currentColor;opacity:.7}
+.hero h1{font-family:var(--serif);font-size:clamp(26px,4vw,38px);font-weight:900;color:#FFF;line-height:1.15;margin-bottom:8px}
+.hero h1 span{color:#5EEAD4}
+.hero p.sub{font-size:14px;color:rgba(255,255,255,.5);max-width:680px;line-height:1.55;margin-bottom:20px}
+.author-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.author-bar .name{font-size:13px;font-weight:700;color:rgba(255,255,255,.8)}
+.author-bar .title{font-size:11.5px;color:rgba(255,255,255,.4);font-weight:500}
+.linkedin-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#0A66C2;border:none;border-radius:6px;color:#FFF;font-size:11.5px;font-weight:600;transition:background .2s}
+.linkedin-btn:hover{background:#004182}
+.linkedin-btn svg{width:14px;height:14px;fill:#FFF}
+
+/* CONTAINER */
+.container{max-width:980px;margin:0 auto;padding:0 16px}
+
+/* PROVINCE TABS */
+.prov-row{display:flex;gap:6px;padding:18px 0 14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.prov-btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);font-size:12.5px;font-weight:600;color:var(--text2);white-space:nowrap;transition:all .2s;flex-shrink:0}
+.prov-btn.active{border-color:var(--prov-c);background:color-mix(in srgb,var(--prov-c) 8%,white);color:var(--prov-c)}
+.prov-btn .flag{font-size:16px}
+.prov-btn .badge{padding:1px 7px;border-radius:9999px;font-size:9.5px;font-weight:700;background:#D4D8E0;color:#FFF}
+.prov-btn.active .badge{background:var(--prov-c)}
+
+/* PROVINCE INFO */
+.prov-info{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:18px 20px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+@media(max-width:700px){.prov-info{grid-template-columns:1fr}}
+.prov-info h2{font-family:var(--serif);font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.prov-info h2 .maturity{font-family:var(--sans);padding:2px 9px;border-radius:9999px;font-size:10px;font-weight:700}
+.prov-info .desc{font-size:12px;color:var(--text2);line-height:1.6;max-width:560px}
+.prov-meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:11.5px;align-content:start}
+.prov-meta dt{color:var(--text3);font-weight:500;white-space:nowrap}
+.prov-meta dd{font-weight:600;color:var(--text)}
+.prov-meta dd a{color:var(--prov-c);text-decoration:underline;text-underline-offset:2px}
+
+/* CATEGORY TABS */
+.cat-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+.cat-btn{display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;transition:all .2s;flex-shrink:0}
+.cat-btn.active{border-color:var(--cat-c);background:var(--cat-light);color:var(--cat-c)}
+.cat-btn .icon{font-size:15px}
+.cat-btn .cnt{padding:1px 7px;border-radius:9999px;font-size:9.5px;font-weight:700;background:#D4D8E0;color:#FFF}
+.cat-btn.active .cnt{background:var(--cat-c)}
+
+/* CONTROLS */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.search-input{flex:1 1 200px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-size:12px;font-family:var(--sans);outline:none;background:var(--surface);transition:border .2s}
+.search-input:focus{border-color:var(--cat-c)}
+.filter-grp{display:flex;gap:3px}
+.filter-btn{padding:7px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;color:var(--text2);transition:all .15s}
+.filter-btn.active{border-color:var(--cat-c);background:var(--cat-light);color:var(--cat-c)}
+
+/* STATS */
+.stats{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:11px;color:var(--text3);font-weight:500}
+.stats strong{color:var(--cat-c)}
+.stats .context{margin-left:auto;color:var(--text3);font-weight:400}
+
+/* SECTION */
+.section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.section-head h3{font-family:var(--serif);font-size:17px;font-weight:800}
+.section-head .flag{font-size:18px}
+.reg-list{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+
+/* REGULATION CARD */
+.reg-card{background:var(--surface);border-radius:8px;border:1px solid var(--border);overflow:hidden;transition:box-shadow .2s}
+.reg-card.open{box-shadow:0 3px 16px color-mix(in srgb,var(--cat-c) 10%,transparent)}
+.reg-toggle{width:100%;display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px;background:transparent;border:none;text-align:left;gap:10px;transition:background .15s}
+.reg-card.open .reg-toggle{background:var(--cat-light)}
+.reg-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:2px}
+.reg-body{font-size:11px;font-weight:600;color:var(--cat-c)}
+.reg-arrow{font-size:16px;color:var(--cat-c);transition:transform .2s;flex-shrink:0;margin-top:2px}
+.reg-card.open .reg-arrow{transform:rotate(180deg)}
+.reg-detail{padding:0 14px 12px;display:none}
+.reg-card.open .reg-detail{display:block}
+.reg-summary{font-size:12px;line-height:1.65;color:var(--text2);margin-bottom:10px}
+.tags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px}
+.tag{display:inline-block;padding:2px 7px;border-radius:9999px;font-size:10px;font-weight:600;background:color-mix(in srgb,var(--cat-c) 10%,white);color:var(--cat-c);border:1px solid color-mix(in srgb,var(--cat-c) 18%,transparent)}
+.reg-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--cat-c);padding:5px 12px;border-radius:6px;background:var(--cat-light);border:1px solid color-mix(in srgb,var(--cat-c) 15%,transparent);transition:all .15s}
+.reg-link:hover{background:color-mix(in srgb,var(--cat-c) 15%,white)}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty .icon{font-size:40px;margin-bottom:10px}
+
+/* FOOTER */
+.footer{text-align:center;padding:24px 16px 40px;border-top:1px solid var(--border);margin-top:12px}
+.footer .author{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.footer .author a{color:#0A66C2;text-decoration:underline;text-underline-offset:2px}
+.footer .disclaimer{font-size:10.5px;color:var(--text3);line-height:1.6;max-width:700px;margin:8px auto 0}
+
+/* SCROLL TO TOP */
+.scroll-top{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;border:none;background:var(--text);color:#FFF;font-size:18px;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:99;transition:opacity .2s}
+.scroll-top.show{display:flex}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeUp .4s ease both}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Canadian CCS Regulatory Guide
+    </div>
+    <h1>Carbon Capture & Storage<br><span>Regulations Across Canada</span></h1>
+    <p class="sub">Complete regulatory reference for CCS operators and technical engineers — Provincial & Federal regulations for CO₂ Capture, Pipeline Transportation, and Sequestration in Saline Aquifers across Alberta, Saskatchewan, British Columbia & Ontario.</p>
+    <div class="author-bar">
+      <div>
+        <div class="name">Tahir Chisti, P.Eng, MAsc.</div>
+        <div class="title">CCS Operations Specialist — Carbon Capture & Storage</div>
+      </div>
+      <a href="https://www.linkedin.com/in/tahirhusen/" target="_blank" rel="noopener noreferrer" class="linkedin-btn">
+        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        Connect on LinkedIn
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="container" id="app">
+  <!-- Province selector -->
+  <div class="prov-row" id="provRow"></div>
+  <!-- Province info -->
+  <div class="prov-info" id="provInfo"></div>
+  <!-- Category tabs -->
+  <div class="cat-row" id="catRow"></div>
+  <!-- Controls -->
+  <div class="controls">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search regulations, bodies, or keywords...">
+    <div class="filter-grp" id="filterGrp"></div>
+    <button class="filter-btn" onclick="expandAll()">＋ Expand</button>
+    <button class="filter-btn" onclick="collapseAll()">− Collapse</button>
+  </div>
+  <!-- Stats -->
+  <div class="stats" id="statsBar"></div>
+  <!-- Regulation lists -->
+  <div id="regContent"></div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="author">Prepared by <a href="https://www.linkedin.com/in/tahirhusen/" target="_blank" rel="noopener noreferrer">Tahir Chisti, P.Eng, MAsc.</a></div>
+  <div style="margin:8px 0"><a href="https://www.linkedin.com/in/tahirhusen/" target="_blank" rel="noopener noreferrer" class="linkedin-btn" style="font-size:12px;padding:8px 18px">
+    <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:#FFF"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    Connect on LinkedIn
+  </a></div>
+  <p class="disclaimer">⚠️ This guide is for informational reference only and does not constitute legal advice. Regulations are subject to change — always consult official sources, qualified legal professionals, and relevant regulatory bodies for compliance decisions. All links direct to official government and regulatory body websites. Last reviewed: March 2026.</p>
+</footer>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ─── DATA ───
+const provinces={AB:{name:"Alberta",short:"AB",flag:"🏔️",maturity:"Advanced",mc:"#047857",storage:"78.3 Gt",regulator:"Alberta Energy Regulator (AER)",regulatorUrl:"https://www.aer.ca",projects:"Quest CCS, ACTL, 25 hub proposals",desc:"Canada's most advanced CCS regulatory framework. World-leading pore space tenure system, comprehensive MMV requirements, Post-Closure Stewardship Fund, and 10+ years of commercial-scale operations."},SK:{name:"Saskatchewan",short:"SK",flag:"🌾",maturity:"Established",mc:"#B45309",storage:"286.2 Gt",regulator:"Ministry of Energy and Resources",regulatorUrl:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas",projects:"Boundary Dam 3 (BD3), Weyburn-Midale, 12 active EOR projects",desc:"World leader in CO₂-EOR with CCS. Regulatory framework builds on existing oil & gas regime via OGCA and Ministerial Orders. Home to the world's first post-combustion CCS on a coal plant."},BC:{name:"British Columbia",short:"BC",flag:"🌲",maturity:"Developing",mc:"#1D4ED8",storage:"4.2 Gt (NE BC Atlas)",regulator:"BC Energy Regulator (BCER)",regulatorUrl:"https://www.bc-er.ca",projects:"NE BC CCS Atlas, 2.7+ Mt acid gas experience since 1996",desc:"Major 2022 overhaul via Energy Statutes Amendment Act. BCER expanded to regulate all CCS activities for all CO₂ sources. Prescribed jurisdiction for federal CCUS ITC. Strong acid gas injection track record."},ON:{name:"Ontario",short:"ON",flag:"🍁",maturity:"Emerging",mc:"#6D28D9",storage:"Under Assessment",regulator:"Ministry of Natural Resources (MNR)",regulatorUrl:"https://www.ontario.ca/page/ministry-natural-resources",projects:"Phase 1-3 Roadmap, SW Ontario assessment, Proposed Geologic Carbon Storage Act",desc:"Phased approach: prohibition removed (2023), special demonstration projects enabled (Jan 2024), commercial-scale framework in development. NOT yet designated for CCUS ITC geological storage."}};
+
+const cats={capture:{title:"CO₂ Capture Facilities",icon:"🏭",c:"#0C7C6B",l:"#E6F7F4"},pipeline:{title:"Pipeline Transportation of CO₂",icon:"🔗",c:"#1A56C7",l:"#E5EEFF"},sequestration:{title:"Sequestration in Saline Aquifers",icon:"⛰️",c:"#7C33CC",l:"#F2E8FF"}};
+
+const R={AB:{capture:{p:[{n:"Environmental Protection and Enhancement Act (EPEA)",b:"Alberta Environment and Protected Areas (AEPA)",s:"Primary environmental legislation for CO₂ capture. Facilities producing steam/heat >1 MW require EPEA approval. Amine-based capture requires air quality assessment for nitrosamine/nitramine species. Covers emissions, waste management, reclamation, and remediation.",l:"https://www.alberta.ca/environmental-protection-and-enhancement-act",t:["Facility Approval","Air Quality","Emissions"]},{n:"Oil and Gas Conservation Act (OGCA)",b:"Alberta Energy Regulator (AER)",s:"AER's authority to regulate energy capture facilities. Approves CO₂ schemes ensuring injection doesn't interfere with oil/gas recovery or existing storage uses.",l:"https://open.alberta.ca/publications/o06",t:["Scheme Approval","AER Authority"]},{n:"Technology Innovation and Emissions Reduction (TIER) Regulation",b:"AEPA",s:"Industrial carbon pricing. CCS generates emission offsets, sequestration credits, and capture recognition tonnes. Amended Dec 2022 for two new CCUS credit types. Price frozen at $95/tonne from 2026. Quantification Protocol v2.0 published Jan 2025.",l:"https://www.alberta.ca/technology-innovation-and-emissions-reduction-regulation",t:["$95/tonne","Offset Credits","Protocol v2.0"]},{n:"AER Directive 056: Energy Development Applications",b:"AER",s:"Technical requirements for facility, pipeline, and well applications. Covers participant involvement, consultation, and application categories.",l:"https://www.aer.ca/regulations-and-compliance-enforcement/rules-and-regulations/directives/directive-056",t:["Application Process","Consultation"]},{n:"AER Directive 065: Resources Applications",b:"AER",s:"Approval process for subsurface injection linked to capture. MMV plans, closure plans, and annual reporting.",l:"https://www.aer.ca/regulations-and-compliance-enforcement/rules-and-regulations/directives/directive-065",t:["MMV Plans","Closure Plans"]},{n:"Water Act",b:"AER",s:"Water Act approvals for capture operations requiring surface/groundwater use.",l:"https://open.alberta.ca/publications/w03",t:["Water Use","Groundwater"]},{n:"Alberta Carbon Capture Incentive Program (ACCIP)",b:"Government of Alberta",s:"12% grant for new eligible capital costs. Complements federal CCUS ITC.",l:"https://www.alberta.ca/carbon-capture-utilization-and-storage-development-and-innovation",t:["12% Grant","Capital Incentive"]},{n:"Occupational Health and Safety Act & Code",b:"Alberta Labour",s:"Workplace safety for compressed CO₂ handling, amine solvents, hazard assessments, and emergency response.",l:"https://www.alberta.ca/occupational-health-safety",t:["Worker Safety"]}],f:[{n:"CCUS Investment Tax Credit (CCUS ITC)",b:"CRA & NRCan",s:"Refundable credit: 60% DAC capture, 50% other capture. Full rates extended to 2035 (Budget 2025). Labour requirements. Annual reporting and knowledge sharing.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["60%/50% Credit","Extended to 2035"]},{n:"Canadian Environmental Protection Act (CEPA), 1999",b:"ECCC",s:"GHG regulation framework. Proposed oil & gas emissions cap recognizes CCS as eligible abatement.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.31/",t:["Emissions Cap","GHG Reporting"]},{n:"Greenhouse Gas Pollution Pricing Act (GGPPA)",b:"ECCC",s:"Federal carbon pricing. OBPS for industrial emitters. Fuel charge zeroed April 2025 but industrial pricing remains.",l:"https://laws-lois.justice.gc.ca/eng/acts/g-11.55/",t:["OBPS","Carbon Pricing"]},{n:"Clean Fuel Regulations (CFR)",b:"ECCC",s:"CCS sequestration credits stackable with CFR compliance — key economic driver.",l:"https://laws-lois.justice.gc.ca/eng/regulations/SOR-2022-140/",t:["Credit Stacking"]},{n:"Income Tax Act — Sections 127.44–127.49",b:"CRA",s:"Legal framework for CCUS ITC (Bill C-59/C-69). Development credit, refurbishment credit (10% cap), Part XII.7 recovery taxes.",l:"https://laws-lois.justice.gc.ca/eng/acts/i-3.3/",t:["Tax Law","ITC Framework"]},{n:"Impact Assessment Act (IAA)",b:"IAAC",s:"Large CCS projects may trigger federal assessment.",l:"https://laws-lois.justice.gc.ca/eng/acts/I-2.75/",t:["Environmental Assessment"]},{n:"Canadian Net-Zero Emissions Accountability Act",b:"ECCC",s:"Enshrines net-zero by 2050. CCS key technology in 2030 Emissions Reduction Plan.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-19.3/",t:["Net-Zero 2050"]}]},pipeline:{p:[{n:"Pipeline Act",b:"AER",s:"Primary legislation for construction and operation of energy pipelines including CO₂. Full lifecycle regulation.",l:"https://open.alberta.ca/publications/p15",t:["Core Legislation"]},{n:"Pipeline Rules (AR 2023/125)",b:"AER",s:"Effective Nov 15, 2023. Section 6.6.22 specifically addresses CO₂ pipelines. Requires integrity management programs and safety/loss management systems.",l:"https://open.alberta.ca/publications/2023_125",t:["CO₂ Rules","Nov 2023"]},{n:"AER Directive 077: Pipelines",b:"AER",s:"Updated Nov 2023. CO₂ pipeline material selection, corrosion management, leak detection, safety systems.",l:"https://www.aer.ca/regulations-and-compliance-enforcement/rules-and-regulations/directives/directive-077",t:["Technical Standards","Corrosion"]},{n:"CSA Z662: Oil and Gas Pipeline Systems",b:"CSA Group",s:"Incorporated by reference. Primary standard for CO₂ pipeline design — ductile fracture propagation, material selection.",l:"https://www.csagroup.org/store/product/Z662/",t:["Design Code","Materials"]},{n:"Surface Rights Act",b:"Surface Rights Board",s:"Pipeline surface rights on private lands. Negotiation, mediation, compensation.",l:"https://open.alberta.ca/publications/s24",t:["Land Rights","Compensation"]},{n:"Public Lands Act",b:"Government of Alberta",s:"Crown land access for pipeline rights-of-way.",l:"https://open.alberta.ca/publications/p40",t:["Crown Land"]},{n:"AER Directive 071: Emergency Preparedness",b:"AER",s:"Emergency response plans for CO₂ pipeline releases. Hazard assessment and planning zones.",l:"https://www.aer.ca/regulations-and-compliance-enforcement/rules-and-regulations/directives/directive-071",t:["Emergency Response"]},{n:"First Nations Consultation Guidelines",b:"Alberta Indigenous Relations",s:"Crown consultation with First Nations/Métis before pipeline development.",l:"https://www.alberta.ca/indigenous-consultations",t:["Duty to Consult"]}],f:[{n:"Canadian Energy Regulator Act (CER Act)",b:"Canada Energy Regulator",s:"Regulates interprovincial/international CO₂ pipelines.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.1/",t:["Interprovincial"]},{n:"CER Onshore Pipeline Regulations",b:"CER",s:"Technical regulations for federally regulated pipelines. Incorporates CSA Z662.",l:"https://laws-lois.justice.gc.ca/eng/regulations/SOR-99-294/",t:["Federal Standards"]},{n:"CCUS ITC — Transportation (37.5%)",b:"CRA",s:"37.5% refundable credit for CO₂ pipeline equipment. Full rate to 2035.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["37.5% Credit"]},{n:"Transportation of Dangerous Goods Act",b:"Transport Canada",s:"Dense/supercritical CO₂ transport classification, labelling, and training.",l:"https://laws-lois.justice.gc.ca/eng/acts/T-19.01/",t:["Dangerous Goods"]},{n:"Species at Risk Act (SARA)",b:"ECCC",s:"Pipeline routes must assess impacts on listed species and critical habitat.",l:"https://laws-lois.justice.gc.ca/eng/acts/s-15.3/",t:["Species Protection"]},{n:"Fisheries Act",b:"DFO",s:"Pipeline water crossings require assessment. Prohibits serious harm to fish habitat.",l:"https://laws-lois.justice.gc.ca/eng/acts/f-14/",t:["Water Crossings"]}]},sequestration:{p:[{n:"Mines and Minerals Act (MMA) — CCS Statutes Amendment Act, 2010",b:"Alberta Energy and Minerals",s:"Foundational CCS law. Crown owns all pore space. Tenure framework (evaluation permits, sequestration leases), liability transfer after closure certificate, Post-Closure Stewardship Fund, Crown indemnification.",l:"https://open.alberta.ca/publications/m22",t:["Pore Space","Liability Transfer","Core Law"]},{n:"Carbon Sequestration Tenure Regulation (AR 68/2011)",b:"Alberta Energy and Minerals",s:"5-year evaluation permits, 15-year CSAs, min 1,000m depth, max 73,728 ha, $1/ha rental, MMV/closure plans (3-year updates), open access hub requirements.",l:"https://open.alberta.ca/publications/2011_068",t:["Tenure","1,000m Depth","15-Year CSA"]},{n:"OGCA — Section 39 (Scheme Approval)",b:"AER",s:"AER approves sequestration schemes. Must not interfere with oil/gas recovery. Requires valid CSA under MMA.",l:"https://open.alberta.ca/publications/o06",t:["Scheme Approval"]},{n:"AER Directive 065",b:"AER",s:"Primary subsurface directive. Well design, injection rates/pressures, MMV plans, closure criteria, annual reporting. Updated April 2023.",l:"https://www.aer.ca/regulations-and-compliance-enforcement/rules-and-regulations/directives/directive-065",t:["Injection","MMV","Closure"]},{n:"CCS Funding Act & Regulation",b:"Government of Alberta",s:"Up to $2 billion for CCS. Funded Quest and ACTL.",l:"https://open.alberta.ca/publications/c02p5",t:["$2 Billion"]},{n:"TIER — Quantification Protocol v2.0 (Jan 2025)",b:"AEPA",s:"Quantifies GHG reductions from saline aquifer sequestration. Director's approval required. 20-year crediting period.",l:"https://www.alberta.ca/technology-innovation-and-emissions-reduction-regulation",t:["20-Year Credits","v2.0"]},{n:"Post-Closure Stewardship Fund",b:"Alberta Energy and Minerals",s:"Mandatory contributions. After closure → Crown assumes indefinite monitoring, maintenance, and remediation.",l:"https://www.alberta.ca/carbon-capture-utilization-and-storage-leadership",t:["Long-Term Liability"]},{n:"Responsible Energy Development Act (REDA)",b:"AER",s:"Establishes AER mandate. Public hearings, compliance enforcement, dispute resolution.",l:"https://open.alberta.ca/publications/r17p3",t:["AER Mandate"]}],f:[{n:"CCUS ITC — Storage (37.5%)",b:"CRA & NRCan",s:"37.5% credit for storage equipment (to 2035). Dedicated geological storage — EOR excluded. 20-year minimum.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["37.5% Credit","20-Year Min"]},{n:"CEPA — Oil & Gas Emissions Cap",b:"ECCC",s:"CCS recognized as abatement. Sequestered emissions deducted from compliance.",l:"https://www.canada.ca/en/services/environment/weather/climatechange/climate-plan/oil-gas-emissions-cap/regulatory-framework.html",t:["Emissions Cap"]},{n:"Canadian GHG Offset Credit System",b:"ECCC",s:"Federal offsets (June 2022). DACS protocol under development. Alberta system recognized.",l:"https://laws-lois.justice.gc.ca/eng/regulations/SOR-2022-111/",t:["Federal Offsets"]},{n:"CSA Z741: Geological Storage of CO₂",b:"CSA Group",s:"National standard: site characterization, risk assessment, well design, MMV, closure.",l:"https://www.csagroup.org/store/product/Z741/",t:["National Standard"]},{n:"GHG Reporting Program (GHGRP)",b:"ECCC",s:"Facilities ≥10,000 t CO₂e report annually. CCS volumes tracked.",l:"https://www.canada.ca/en/environment-climate-change/services/climate-change/greenhouse-gas-emissions/facility-reporting.html",t:["Annual Reporting"]}]}},
+SK:{capture:{p:[{n:"Oil and Gas Conservation Act (OGCA), Saskatchewan",b:"Ministry of Energy and Resources",s:"Primary CCS legislation. Amended 2018/2020. Minister empowered to make orders on containment, storage, handling, transportation, and disposal of CO₂.",l:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas/oil-and-gas-legislation-regulations-and-ministers-orders",t:["Core Legislation","Ministerial Orders"]},{n:"Management and Reduction of Greenhouse Gases Act (MRGG)",b:"Saskatchewan Environment",s:"GHG management framework. OBPS for industry. Technology fund compliance option. Facilities >10,000 t CO₂e/yr must report.",l:"https://www.saskatchewan.ca/business/environmental-protection-and-sustainability/a-made-in-saskatchewan-climate-change-strategy/legislation-and-regulations",t:["OBPS","GHG Reporting"]},{n:"MRGG (Standards and Compliance) Regulations, 2023",b:"Saskatchewan Environment",s:"Output-based performance standards for regulated emitters. Updated 2023.",l:"https://www.saskatchewan.ca/business/environmental-protection-and-sustainability/a-made-in-saskatchewan-climate-change-strategy/legislation-and-regulations",t:["Performance Standards"]},{n:"Oil and Gas Conservation Regulations, 2012",b:"Ministry of Energy and Resources",s:"Technical regulations for wells, facilities, pipelines. Separate licences required for CCS project, facility, and wells.",l:"https://www.canlii.org/en/sk/laws/regu/rrs-c-o-2-reg-6/latest/",t:["Licensing","Technical"]},{n:"Emissions Management Regulations (2020)",b:"Ministry of Energy and Resources",s:"Facilities >50,000 t CO₂e/yr: measure and report. $50/t penalty for excess. Reduction plans required from Jan 2024.",l:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas/oil-and-gas-legislation-regulations-and-ministers-orders",t:["50,000t Threshold","$50/t Penalty"]},{n:"Environmental Assessment Act",b:"Saskatchewan Environment",s:"Environmental impact assessment for major CCS developments.",l:"https://www.saskatchewan.ca/business/environmental-protection-and-sustainability/environmental-assessment",t:["Environmental Assessment"]}],f:[{n:"CCUS ITC",b:"CRA & NRCan",s:"Saskatchewan is prescribed eligible jurisdiction. Full rates: 60% DAC / 50% other / 37.5% transport & storage.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["Prescribed","60%/50%"]},{n:"CEPA & Oil & Gas Emissions Cap",b:"ECCC",s:"CCS recognized as abatement. SK-Canada equivalency agreement for electricity sector.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.31/",t:["Emissions Cap","Equivalency"]},{n:"GGPPA — OBPS",b:"ECCC",s:"Federal industrial pricing. CCS offsets usable for compliance.",l:"https://laws-lois.justice.gc.ca/eng/acts/g-11.55/",t:["OBPS"]},{n:"Clean Fuel Regulations",b:"ECCC",s:"CCS credits stackable with CFR compliance.",l:"https://laws-lois.justice.gc.ca/eng/regulations/SOR-2022-140/",t:["Credit Stacking"]},{n:"Impact Assessment Act",b:"IAAC",s:"Major CCS facilities may trigger federal assessment.",l:"https://laws-lois.justice.gc.ca/eng/acts/I-2.75/",t:["Federal Assessment"]}]},pipeline:{p:[{n:"OGCA — Pipeline Provisions",b:"Ministry of Energy and Resources",s:"Pipeline licensing under existing oil/gas framework. Sections 100, 108, 113, 122 of Regulations address pipelines.",l:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas/oil-and-gas-legislation-regulations-and-ministers-orders",t:["Pipeline Licensing"]},{n:"Oil Infrastructure Investment Program (OIIP) — Expanded for CO₂",b:"Ministry of Energy and Resources",s:"Expanded to include CO₂ pipelines. Supports hub corridors for Regina–Moose Jaw to SE Saskatchewan.",l:"https://www.saskatchewan.ca/government/news-and-media/2021/september/07/saskatchewan-announces-carbon-capture-utilization-and-storage-priorities",t:["CO₂ Infrastructure","Hub Corridors"]},{n:"Pipelines Act, 1998",b:"Government of Saskatchewan",s:"Provincial pipeline regulatory requirements, routing, and land access outside OGCA.",l:"https://www.publications.gov.sk.ca/details.cfm?p=782",t:["Provincial Pipelines"]},{n:"CSA Z662",b:"CSA Group",s:"Applicable to CO₂ pipeline design in Saskatchewan. CO₂-specific material requirements.",l:"https://www.csagroup.org/store/product/Z662/",t:["Design Standard"]},{n:"Surface Rights Acquisition and Compensation Act",b:"Government of Saskatchewan",s:"Surface rights for CO₂ pipeline construction. Landowner compensation.",l:"https://www.publications.gov.sk.ca/details.cfm?p=867",t:["Land Rights"]}],f:[{n:"Canadian Energy Regulator Act",b:"CER",s:"Interprovincial CO₂ pipelines (AB–SK) under federal jurisdiction.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.1/",t:["Interprovincial"]},{n:"CCUS ITC — Transportation (37.5%)",b:"CRA",s:"37.5% credit for CO₂ pipeline equipment. Full rate to 2035.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["37.5% Credit"]},{n:"Transportation of Dangerous Goods Act",b:"Transport Canada",s:"Dense/supercritical CO₂ transport requirements.",l:"https://laws-lois.justice.gc.ca/eng/acts/T-19.01/",t:["Dangerous Goods"]}]},sequestration:{p:[{n:"OGCA — Storage Project Approval (Minister's Orders)",b:"Ministry of Energy and Resources",s:"Minister approves CO₂ storage via Orders. Separate project licence + well/facility/pipeline licences. Gas use permit required. IRIS system applications.",l:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas/oil-and-gas-drilling-and-operations/gas-storage-and-cavern-storage-disposal",t:["Minister's Orders","Project Licence"]},{n:"Directive PNG008: Injection Well Requirements",b:"Ministry of Energy and Resources",s:"Technical requirements for CO₂ injection wells — design, completion, and operations.",l:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas/oil-and-gas-legislation-regulations-and-ministers-orders",t:["Well Design","Injection"]},{n:"Directive PNG009: Public Notice Requirements",b:"Ministry of Energy and Resources",s:"Public notification for CCS and oil/gas activities. Affected parties must be identified.",l:"https://www.saskatchewan.ca/business/agriculture-natural-resources-and-industry/oil-and-gas/oil-and-gas-legislation-regulations-and-ministers-orders",t:["Public Notice"]},{n:"Pore Space Ownership — Under Development",b:"Government of Saskatchewan",s:"Priority to amend regulations for pore space ownership, access, and long-term obligations. CCUS credit generation program being developed.",l:"https://www.saskatchewan.ca/government/news-and-media/2021/september/07/saskatchewan-announces-carbon-capture-utilization-and-storage-priorities",t:["Evolving","CCUS Credits"]},{n:"Environmental Management and Protection Act",b:"Saskatchewan Environment",s:"Groundwater protection, site remediation, contamination prevention.",l:"https://www.saskatchewan.ca/business/environmental-protection-and-sustainability",t:["Groundwater"]},{n:"CSA Z741: Geological Storage of CO₂",b:"CSA Group",s:"National standard for site characterization, risk assessment, well design, MMV, closure.",l:"https://www.csagroup.org/store/product/Z741/",t:["National Standard"]}],f:[{n:"CCUS ITC — Storage (37.5%)",b:"CRA & NRCan",s:"SK is prescribed. 37.5% for storage equipment. Dedicated geological storage. 20-year minimum.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["37.5%","Prescribed"]},{n:"CEPA — Emissions Cap",b:"ECCC",s:"CCS sequestration recognized. Permanently stored emissions deducted.",l:"https://www.canada.ca/en/services/environment/weather/climatechange/climate-plan/oil-gas-emissions-cap/regulatory-framework.html",t:["Emissions Cap"]},{n:"GHG Reporting Program",b:"ECCC",s:"Federal reporting ≥10,000 t CO₂e. CCS volumes tracked.",l:"https://www.canada.ca/en/environment-climate-change/services/climate-change/greenhouse-gas-emissions/facility-reporting.html",t:["Reporting"]},{n:"Canadian GHG Offset Credit System",b:"ECCC",s:"Federal offsets. DACS protocol under development.",l:"https://laws-lois.justice.gc.ca/eng/regulations/SOR-2022-111/",t:["Federal Offsets"]}]}},
+BC:{capture:{p:[{n:"Energy Resource Activities Act (ERAA)",b:"BC Energy Regulator (BCER)",s:"Renamed from OGAA (2022). CCS defined as 'energy resource activity.' BCER regulates capture facilities for all CO₂ sources (expanded Feb 2024). Facility permits required.",l:"https://www.bc-er.ca/how-we-regulate/legislative-framework/",t:["Core Legislation","All CO₂ Sources"]},{n:"BC GHG Industrial Reporting and Control Act (GGIRCA)",b:"BC Ministry of Environment",s:"Industrial carbon pricing. ≥10,000 t CO₂e report. BC CCS Offset Protocol enables offset credits.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/14029_01",t:["Carbon Pricing","Offsets"]},{n:"Environmental Management Act (EMA)",b:"BC Ministry of Environment",s:"Environmental permitting — waste, air quality, contaminated sites for capture facilities.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/03053_00",t:["Environmental Permits"]},{n:"Environmental Assessment Act (BC)",b:"BC EAO",s:"Major CCS projects may require provincial environmental assessment.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/18051",t:["Environmental Assessment"]},{n:"Workers Compensation Act / OHS",b:"WorkSafeBC",s:"Workplace safety for capture facilities.",l:"https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",t:["Worker Safety"]}],f:[{n:"CCUS ITC",b:"CRA & NRCan",s:"BC is prescribed eligible jurisdiction. Full ITC rates for capture (60% DAC, 50% other) to 2035.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["Prescribed","60%/50%"]},{n:"CEPA",b:"ECCC",s:"Federal environmental protection. CCS recognized as abatement.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.31/",t:["Federal Environmental Law"]},{n:"GGPPA — OBPS",b:"ECCC",s:"Federal industrial pricing. CCS offsets usable.",l:"https://laws-lois.justice.gc.ca/eng/acts/g-11.55/",t:["Carbon Pricing"]},{n:"Impact Assessment Act",b:"IAAC",s:"Federal assessment for major CCS projects.",l:"https://laws-lois.justice.gc.ca/eng/acts/I-2.75/",t:["Federal Assessment"]}]},pipeline:{p:[{n:"ERAA — Pipeline Permits",b:"BCER",s:"BCER regulates CO₂ pipelines from all sources (expanded Sept 2023). Pipeline permits required.",l:"https://www.bc-er.ca/how-we-regulate/legislative-framework/",t:["CO₂ Pipelines","All Sources"]},{n:"Drilling and Production Regulation",b:"BCER",s:"Technical requirements for CCS-associated pipelines.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/282_2010",t:["Technical Standards"]},{n:"CSA Z662",b:"CSA Group",s:"Referenced standard for pipeline design in BC.",l:"https://www.csagroup.org/store/product/Z662/",t:["Design Code"]},{n:"ERAA Application Manual",b:"BCER",s:"Separate permits required for wells, facilities, and pipelines.",l:"https://www.bc-er.ca/how-we-regulate/legislative-framework/",t:["Application Process"]},{n:"Land Act / Surface Rights under PNGA",b:"Government of BC",s:"Surface rights for CO₂ pipeline development. Right of entry and compensation.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/96245_01",t:["Land Access"]}],f:[{n:"Canadian Energy Regulator Act",b:"CER",s:"Interprovincial CO₂ pipelines under federal jurisdiction.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.1/",t:["Federal Jurisdiction"]},{n:"CCUS ITC — Transportation (37.5%)",b:"CRA",s:"37.5% credit. BC is prescribed jurisdiction.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["37.5% Credit"]},{n:"Transportation of Dangerous Goods Act",b:"Transport Canada",s:"Dense/supercritical CO₂ transport.",l:"https://laws-lois.justice.gc.ca/eng/acts/T-19.01/",t:["Dangerous Goods"]}]},sequestration:{p:[{n:"Petroleum and Natural Gas Act (PNGA) — Part 14 (Underground Storage)",b:"Government of BC",s:"Sections 125.3–132. Government owns storage reservoirs. Storage reservoir licences via application. 2022 amendments: removed restrictions on applicants, removed compensation for government's reservoir rights.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/96361_01",t:["Pore Space","Storage Licence","PNGA Part 14"]},{n:"Petroleum and Natural Gas Storage Reservoir Regulation",b:"Government of BC",s:"Safe and effective use of storage reservoirs. Updated application requirements.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/282_2010",t:["Storage Regulation"]},{n:"ERAA — Section 75 Special Project Orders",b:"BCER",s:"CCS approved as Section 75 Special Project. Enforceable conditions for operations, monitoring, testing. Section 80: CSA Z741 mandatory.",l:"https://www.bc-er.ca/stories/carbon-capture-and-storage/",t:["Special Project","CSA Z741"]},{n:"CO₂ Storage Application Guide (v1.3, Feb 2024)",b:"BCER",s:"Comprehensive guide. Pre-applications accepted. All CO₂ sources eligible. Storage for geologic time. First Nations consultation required.",l:"https://www.bc-er.ca/files/operations-documentation/Reservoir-Management/Subsurface-Disposal/Carbon-Dioxide-Storage-Application-Guideline.pdf",t:["Application Guide","v1.3"]},{n:"CSA Z741: Geological Storage of CO₂",b:"CSA Group",s:"Mandatory under ERAA Section 80 for CCS wells.",l:"https://www.csagroup.org/store/product/Z741/",t:["Mandatory Standard"]},{n:"Water Sustainability Act",b:"BC Ministry of Environment",s:"Groundwater and surface water protection from CCS injection.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/14015",t:["Groundwater"]},{n:"Declaration on the Rights of Indigenous Peoples Act (DRIPA)",b:"Government of BC",s:"CCS projects must engage in meaningful consultation with First Nations.",l:"https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/19044",t:["Indigenous Consultation"]}],f:[{n:"CCUS ITC — Storage (37.5%)",b:"CRA & NRCan",s:"BC designated for geological storage. 37.5% credit, 20-year minimum.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["37.5%","Designated"]},{n:"CSA Z741",b:"CSA Group",s:"National standard referenced provincially and federally.",l:"https://www.csagroup.org/store/product/Z741/",t:["National Standard"]},{n:"GHG Reporting Program",b:"ECCC",s:"Federal reporting for CCS volumes.",l:"https://www.canada.ca/en/environment-climate-change/services/climate-change/greenhouse-gas-emissions/facility-reporting.html",t:["Reporting"]},{n:"Impact Assessment Act",b:"IAAC",s:"Federal assessment for major storage projects.",l:"https://laws-lois.justice.gc.ca/eng/acts/I-2.75/",t:["Assessment"]}]}},
+ON:{capture:{p:[{n:"Environmental Protection Act (EPA), Ontario",b:"Ministry of the Environment (MECP)",s:"Environmental compliance for capture facilities. Air emissions, waste, and Environmental Compliance Approvals (ECAs).",l:"https://www.ontario.ca/laws/statute/90e19",t:["ECAs","Environmental"]},{n:"Ontario Emissions Performance Standards (EPS)",b:"MECP",s:"Carbon pricing for large emitters. CCS could generate compliance credits once framework matures.",l:"https://www.ontario.ca/laws/regulation/190241",t:["Carbon Pricing","Large Emitters"]},{n:"Ontario Low-Carbon Hydrogen Strategy",b:"Government of Ontario",s:"CCS key enabler for hydrogen economy. Drives capture facility demand.",l:"https://www.ontario.ca/page/ontarios-low-carbon-hydrogen-strategy",t:["Hydrogen Strategy"]},{n:"Occupational Health and Safety Act (OHSA)",b:"Ontario Ministry of Labour",s:"Workplace safety for CO₂ capture operations.",l:"https://www.ontario.ca/laws/statute/90o01",t:["Worker Safety"]}],f:[{n:"CCUS ITC",b:"CRA & NRCan",s:"Ontario NOT yet prescribed for geological storage ITC. Capture equipment may qualify for concrete storage or other eligible uses.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["NOT Prescribed","Framework Pending"]},{n:"CEPA",b:"ECCC",s:"Federal environmental protection applies to Ontario industrial emissions.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.31/",t:["Federal Law"]},{n:"GGPPA — OBPS",b:"ECCC",s:"Federal OBPS interacts with Ontario EPS. CCS offsets could apply.",l:"https://laws-lois.justice.gc.ca/eng/acts/g-11.55/",t:["OBPS"]},{n:"Impact Assessment Act",b:"IAAC",s:"Major Ontario CCS projects may trigger federal assessment.",l:"https://laws-lois.justice.gc.ca/eng/acts/I-2.75/",t:["Federal Assessment"]}]},pipeline:{p:[{n:"Oil, Gas and Salt Resources Act (OGSRA) — Pipelines",b:"Ministry of Natural Resources (MNR)",s:"Regulates pipelines associated with wells. CO₂ pipelines for CCS special projects within this framework.",l:"https://www.ontario.ca/laws/statute/90p12",t:["Pipeline Regulation"]},{n:"Technical Standards and Safety Act (TSSA)",b:"TSSA",s:"Safety standards for pipelines and pressure equipment including CO₂ compression systems.",l:"https://www.ontario.ca/laws/statute/00t16",t:["Technical Safety"]},{n:"Ontario Energy Board Act",b:"OEB",s:"May apply to CO₂ pipeline infrastructure depending on classification.",l:"https://www.ontario.ca/laws/statute/98o15",t:["Energy Infrastructure"]},{n:"CSA Z662",b:"CSA Group",s:"Referenced standard for pipeline design in Ontario.",l:"https://www.csagroup.org/store/product/Z662/",t:["Design Standard"]}],f:[{n:"Canadian Energy Regulator Act",b:"CER",s:"Interprovincial CO₂ pipelines under federal CER.",l:"https://laws-lois.justice.gc.ca/eng/acts/c-15.1/",t:["Interprovincial"]},{n:"CCUS ITC — Transportation (37.5%)",b:"CRA",s:"37.5% credit. Ontario eligibility depends on jurisdictional designation.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["Jurisdiction Pending"]},{n:"Transportation of Dangerous Goods Act",b:"Transport Canada",s:"CO₂ transport requirements.",l:"https://laws-lois.justice.gc.ca/eng/acts/T-19.01/",t:["Dangerous Goods"]}]},sequestration:{p:[{n:"OGSRA — Amended 2023 (Prohibition Removed)",b:"MNR",s:"Phase 1 (March 2023): Removed sequestration prohibition. Phase 2 (June 2023): Enabled 'special projects' for demonstration. Private land only — Mining Act prohibits Crown land disposal.",l:"https://www.ontario.ca/laws/statute/90p12",t:["Prohibition Removed","Private Land Only"]},{n:"Ontario Regulation 425/23 — Special Projects (Jan 2024)",b:"MNR",s:"Framework for CCS demonstration. Minister designates eligible projects. Must be new/innovative to Ontario, access Cambrian+ formations. Requires CSA Z741, irrevocable letter of credit, facility registration.",l:"https://www.ontario.ca/laws/regulation/230425",t:["Jan 2024","Demonstration","CSA Z741"]},{n:"Proposed Geologic Carbon Storage Act (Bill 228)",b:"Government of Ontario",s:"Phase 3: Commercial-scale framework. Permits for research/evaluation and storage activities. Prescribed areas only. Hub model preferred for SW Ontario. Pore space ownership unresolved.",l:"https://ero.ontario.ca/notice/019-9299",t:["Proposed","Commercial Scale","Hub Model"]},{n:"Provincial Standards for Oil, Gas and Salt Resources",b:"MNR",s:"Operating standards for CCS special projects. CSA Z741 compliance throughout lifecycle.",l:"https://www.ontario.ca/page/provincial-standards-oil-gas-and-salt-resources",t:["Operating Standards"]},{n:"Mining Act — Crown Land Prohibition",b:"MNR",s:"Currently prohibits CO₂ storage on Crown land. Major impediment — promising formations under Crown land and Lake Erie.",l:"https://www.ontario.ca/laws/statute/90m14",t:["Crown Land Barrier","Legislative Gap"]},{n:"SW Ontario Geological Assessment",b:"MNR / Ontario Geological Survey",s:"Saline aquifers in SW Ontario (~Port Dover to Windsor) identified as promising. Cambrian formations at adequate depth.",l:"https://www.ontario.ca/page/ministry-natural-resources",t:["SW Ontario","Site Assessment"]}],f:[{n:"CCUS ITC — Storage",b:"CRA & NRCan",s:"Ontario NOT designated for geological storage ITC. Major financial gap vs. AB/SK/BC. Framework required first.",l:"https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/carbon-capture-itc.html",t:["NOT Designated","Gap"]},{n:"CSA Z741",b:"CSA Group",s:"Required for Ontario special projects under O.Reg 425/23.",l:"https://www.csagroup.org/store/product/Z741/",t:["Mandatory"]},{n:"GHG Reporting Program",b:"ECCC",s:"Federal reporting for CCS ≥10,000 t CO₂e.",l:"https://www.canada.ca/en/environment-climate-change/services/climate-change/greenhouse-gas-emissions/facility-reporting.html",t:["Reporting"]},{n:"Impact Assessment Act",b:"IAAC",s:"Federal assessment may apply.",l:"https://laws-lois.justice.gc.ca/eng/acts/I-2.75/",t:["Assessment"]}]}}};
+
+// ─── STATE ───
+let state={prov:"AB",cat:"capture",level:"all",search:"",expanded:{}};
+
+function getTotalRegs(prov){
+  let c=0;const d=R[prov];if(!d)return 0;
+  Object.values(d).forEach(cat=>{c+=(cat.p?.length||0)+(cat.f?.length||0)});return c;
+}
+
+// ─── RENDER ───
+function render(){
+  const p=provinces[state.prov],cm=cats[state.cat],d=R[state.prov]?.[state.cat]||{p:[],f:[]};
+  
+  document.documentElement.style.setProperty('--prov-c',p.mc);
+  document.documentElement.style.setProperty('--cat-c',cm.c);
+  document.documentElement.style.setProperty('--cat-light',cm.l);
+
+  // Province tabs
+  let ph='';
+  Object.entries(provinces).forEach(([k,v])=>{
+    const a=state.prov===k;
+    ph+=`<button class="prov-btn ${a?'active':''}" style="${a?'--prov-c:'+v.mc:''};${a?'border-color:'+v.mc+';background:'+v.mc+'10;color:'+v.mc:''}" onclick="setProv('${k}')"><span class="flag">${v.flag}</span>${v.name}<span class="badge" style="${a?'background:'+v.mc:''}">${v.short}</span></button>`;
+  });
+  document.getElementById('provRow').innerHTML=ph;
+
+  // Province info
+  document.getElementById('provInfo').innerHTML=`
+    <div>
+      <h2>${p.flag} ${p.name} <span class="maturity" style="background:${p.mc}15;color:${p.mc};border:1px solid ${p.mc}30">${p.maturity}</span></h2>
+      <p class="desc">${p.desc}</p>
+    </div>
+    <dl class="prov-meta">
+      <dt>Storage Capacity:</dt><dd>${p.storage}</dd>
+      <dt>Regulator:</dt><dd><a href="${p.regulatorUrl}" target="_blank">${p.regulator} ↗</a></dd>
+      <dt>Key Projects:</dt><dd>${p.projects}</dd>
+      <dt>Total Regulations:</dt><dd style="color:${p.mc};font-weight:800">${getTotalRegs(state.prov)}</dd>
+    </dl>`;
+
+  // Category tabs
+  let ch='';
+  Object.entries(cats).forEach(([k,m])=>{
+    const a=state.cat===k,dd=R[state.prov]?.[k]||{p:[],f:[]},cnt=(dd.p?.length||0)+(dd.f?.length||0);
+    ch+=`<button class="cat-btn ${a?'active':''}" style="${a?'border-color:'+m.c+';background:'+m.l+';color:'+m.c:''}" onclick="setCat('${k}')"><span class="icon">${m.icon}</span>${m.title}<span class="cnt" style="${a?'background:'+m.c:''}">${cnt}</span></button>`;
+  });
+  document.getElementById('catRow').innerHTML=ch;
+
+  // Filter buttons
+  let fg='';
+  ['all','provincial','federal'].forEach(l=>{
+    const a=state.level===l;
+    fg+=`<button class="filter-btn ${a?'active':''}" style="${a?'border-color:'+cm.c+';background:'+cm.l+';color:'+cm.c:''}" onclick="setLevel('${l}')">${l==='all'?'All':l.charAt(0).toUpperCase()+l.slice(1)}</button>`;
+  });
+  document.getElementById('filterGrp').innerHTML=fg;
+
+  // Filter data
+  const s=state.search.toLowerCase();
+  const filt=arr=>s?arr.filter(r=>r.n.toLowerCase().includes(s)||r.s.toLowerCase().includes(s)||r.b.toLowerCase().includes(s)||r.t.some(t=>t.toLowerCase().includes(s))):arr;
+  const pRegs=filt(d.p||[]),fRegs=filt(d.f||[]);
+  const showP=state.level==='all'||state.level==='provincial';
+  const showF=state.level==='all'||state.level==='federal';
+  const total=(showP?pRegs.length:0)+(showF?fRegs.length:0);
+
+  // Stats
+  document.getElementById('statsBar').innerHTML=`
+    <span>Showing <strong>${total}</strong> regulation${total!==1?'s':''}</span>
+    ${showP?`<span>🏛️ Provincial: <strong>${pRegs.length}</strong></span>`:''}
+    ${showF?`<span>🍁 Federal: <strong>${fRegs.length}</strong></span>`:''}
+    <span class="context">${p.name} · ${cm.title}</span>`;
+
+  // Regulations
+  let html='';
+  const renderCards=(regs,prefix)=>regs.map((r,i)=>{
+    const key=prefix+i,open=state.expanded[key];
+    return `<div class="reg-card ${open?'open':''}" id="card-${key}">
+      <button class="reg-toggle" onclick="toggleCard('${key}')">
+        <div><div class="reg-name">${r.n}</div><div class="reg-body">${r.b}</div></div>
+        <span class="reg-arrow">▾</span>
+      </button>
+      <div class="reg-detail">
+        <p class="reg-summary">${r.s}</p>
+        <div class="tags">${r.t.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <a href="${r.l}" target="_blank" rel="noopener noreferrer" class="reg-link">📄 View Full Regulation →</a>
+      </div>
+    </div>`;
+  }).join('');
+
+  if(showP&&pRegs.length>0){
+    html+=`<div class="section-head"><span class="flag">${p.flag}</span><h3>Provincial — ${p.name}</h3></div>
+    <div class="reg-list">${renderCards(pRegs,'p')}</div>`;
+  }
+  if(showF&&fRegs.length>0){
+    html+=`<div class="section-head"><span class="flag">🍁</span><h3>Federal — Canada</h3></div>
+    <div class="reg-list">${renderCards(fRegs,'f')}</div>`;
+  }
+  if(total===0){
+    html=`<div class="empty"><div class="icon">🔍</div><p style="font-size:14px;font-weight:500">No regulations found${state.search?' matching "'+state.search+'"':''}</p></div>`;
+  }
+  document.getElementById('regContent').innerHTML=html;
+}
+
+function setProv(k){state.prov=k;state.expanded={};state.search='';document.getElementById('searchInput').value='';render()}
+function setCat(k){state.cat=k;state.expanded={};state.search='';document.getElementById('searchInput').value='';render()}
+function setLevel(l){state.level=l;render()}
+function toggleCard(k){state.expanded[k]=!state.expanded[k];render()}
+function expandAll(){
+  const d=R[state.prov]?.[state.cat]||{p:[],f:[]};
+  (d.p||[]).forEach((_,i)=>state.expanded['p'+i]=true);
+  (d.f||[]).forEach((_,i)=>state.expanded['f'+i]=true);
+  render();
+}
+function collapseAll(){state.expanded={};render()}
+
+document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value;render()});
+
+// Scroll to top
+window.addEventListener('scroll',()=>{
+  document.getElementById('scrollTop').classList.toggle('show',window.scrollY>400);
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
